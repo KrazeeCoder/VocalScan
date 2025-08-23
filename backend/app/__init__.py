@@ -1,0 +1,5 @@
+"""
+VocalScan backend application package.
+"""
+
+
