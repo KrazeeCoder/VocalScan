@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>VocalScan - Sign In & Get ID Token</title>
+    <style>
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 24px; line-height: 1.4; }
+      input, button, select, textarea { font-size: 16px; padding: 8px; }
+      fieldset { margin-bottom: 16px; }
+      label { display: block; margin-top: 8px; }
+      .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+      .muted { color: #666; font-size: 12px; }
+      .ok { color: #0a7d00; }
+      .err { color: #b00000; }
+      .token { width: 100%; min-height: 60px; font-family: ui-monospace, Menlo, Consolas, monospace; }
+      .box { border: 1px solid #ddd; padding: 12px; border-radius: 8px; }
+    </style>
+  </head>
+  <body>
+    <h1>VocalScan — Sign In</h1>
+
+    <fieldset class="box">
+      <legend>Firebase config</legend>
+      <div class="row">
+        <label>apiKey <input id="apiKey" placeholder="apiKey" /></label>
+        <label>authDomain <input id="authDomain" placeholder="your-project.firebaseapp.com" /></label>
+        <label>projectId <input id="projectId" placeholder="projectId" /></label>
+        <label>appId <input id="appId" placeholder="1:123:web:abc" /></label>
+      </div>
+      <div class="row">
+        <button id="initBtn">Init Firebase</button>
+        <span id="initStatus" class="muted"></span>
+      </div>
+    </fieldset>
+
+    <fieldset class="box">
+      <legend>Auth</legend>
+      <div class="row">
+        <button id="googleBtn">Sign in with Google</button>
+        <button id="signOutBtn">Sign out</button>
+        <span id="authStatus" class="muted"></span>
+      </div>
+      <div class="row">
+        <label>Email <input id="email" type="email" placeholder="email" /></label>
+        <label>Password <input id="password" type="password" placeholder="password" /></label>
+        <button id="emailSignInBtn">Email sign-in</button>
+        <button id="emailRegisterBtn">Create account</button>
+      </div>
+      <div>
+        <div>Current user: <span id="userInfo" class="muted">(none)</span></div>
+        <div class="row" style="margin-top:8px;">
+          <button id="tokenBtn">Get ID token</button>
+          <button id="copyBtn">Copy</button>
+        </div>
+        <textarea id="tokenOut" class="token" placeholder="ID token will appear here"></textarea>
+      </div>
+    </fieldset>
+
+    <fieldset class="box">
+      <legend>Call /infer (local backend)</legend>
+      <div class="row">
+        <label>File <input id="fileInput" type="file" accept="audio/*" /></label>
+        <label>sampleRate <input id="sampleRate" type="number" value="48000" /></label>
+        <label>durationSec <input id="durationSec" type="number" step="0.1" value="5" /></label>
+      </div>
+      <div class="row">
+        <label>Backend URL <input id="backendUrl" value="http://127.0.0.1:8080/infer" size="40" /></label>
+        <button id="inferBtn">Send to /infer</button>
+        <span class="muted">CORS origin must be http://localhost:3000</span>
+      </div>
+      <pre id="inferOut" class="token"></pre>
+    </fieldset>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
+      import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
+
+      const els = {
+        apiKey: document.getElementById('apiKey'),
+        authDomain: document.getElementById('authDomain'),
+        projectId: document.getElementById('projectId'),
+        appId: document.getElementById('appId'),
+        initBtn: document.getElementById('initBtn'),
+        initStatus: document.getElementById('initStatus'),
+        googleBtn: document.getElementById('googleBtn'),
+        signOutBtn: document.getElementById('signOutBtn'),
+        email: document.getElementById('email'),
+        password: document.getElementById('password'),
+        emailSignInBtn: document.getElementById('emailSignInBtn'),
+        emailRegisterBtn: document.getElementById('emailRegisterBtn'),
+        authStatus: document.getElementById('authStatus'),
+        userInfo: document.getElementById('userInfo'),
+        tokenBtn: document.getElementById('tokenBtn'),
+        copyBtn: document.getElementById('copyBtn'),
+        tokenOut: document.getElementById('tokenOut'),
+        fileInput: document.getElementById('fileInput'),
+        sampleRate: document.getElementById('sampleRate'),
+        durationSec: document.getElementById('durationSec'),
+        inferBtn: document.getElementById('inferBtn'),
+        backendUrl: document.getElementById('backendUrl'),
+        inferOut: document.getElementById('inferOut'),
+      };
+
+      let app = null;
+      let auth = null;
+
+      function initWithConfig(config) {
+        const cfg = {
+          apiKey: (config.apiKey || '').trim(),
+          authDomain: (config.authDomain || '').trim(),
+          projectId: (config.projectId || '').trim(),
+          appId: (config.appId || '').trim(),
+        };
+        if (!cfg.apiKey || !cfg.authDomain || !cfg.projectId || !cfg.appId) {
+          setStatus(els.initStatus, 'Missing config fields', false);
+          return;
+        }
+        app = initializeApp(cfg);
+        auth = getAuth(app);
+        localStorage.setItem('fbConfig', JSON.stringify(cfg));
+        els.apiKey.value = cfg.apiKey;
+        els.authDomain.value = cfg.authDomain;
+        els.projectId.value = cfg.projectId;
+        els.appId.value = cfg.appId;
+        els.initStatus.className = 'muted';
+        setStatus(els.initStatus, 'Initialized', true);
+
+        onAuthStateChanged(auth, (user) => {
+          if (user) {
+            els.userInfo.textContent = `${user.uid} (${user.email || 'no-email'})`;
+          } else {
+            els.userInfo.textContent = '(none)';
+            els.tokenOut.value = '';
+          }
+        });
+      }
+
+      // Load saved config
+      try {
+        const saved = JSON.parse(localStorage.getItem('fbConfig') || 'null');
+        if (saved) {
+          els.apiKey.value = saved.apiKey || '';
+          els.authDomain.value = saved.authDomain || '';
+          els.projectId.value = saved.projectId || '';
+          els.appId.value = saved.appId || '';
+        }
+      } catch {}
+
+      function setStatus(el, msg, ok=false) {
+        el.textContent = msg;
+        el.className = ok ? 'ok' : 'err';
+      }
+
+      els.initBtn.addEventListener('click', () => {
+        try {
+          initWithConfig({
+            apiKey: els.apiKey.value,
+            authDomain: els.authDomain.value,
+            projectId: els.projectId.value,
+            appId: els.appId.value,
+          });
+        } catch (e) {
+          setStatus(els.initStatus, `Init failed: ${e?.message || e}`, false);
+        }
+      });
+
+      (async function autoLoadConfig() {
+        try {
+          const res = await fetch('./firebase-config.json', { cache: 'no-store' });
+          if (!res.ok) return;
+          const cfg = await res.json();
+          if (!cfg) return;
+          els.apiKey.value = cfg.apiKey || '';
+          els.authDomain.value = cfg.authDomain || '';
+          els.projectId.value = cfg.projectId || '';
+          els.appId.value = cfg.appId || '';
+          initWithConfig(cfg);
+        } catch (_) {
+          // ignore if file is absent
+        }
+      })();
+
+      els.googleBtn.addEventListener('click', async () => {
+        if (!auth) return setStatus(els.authStatus, 'Init first', false);
+        try {
+          const provider = new GoogleAuthProvider();
+          await signInWithPopup(auth, provider);
+          setStatus(els.authStatus, 'Signed in', true);
+        } catch (e) {
+          setStatus(els.authStatus, `Sign-in failed: ${e?.message || e}`, false);
+        }
+      });
+
+      els.signOutBtn.addEventListener('click', async () => {
+        if (!auth) return setStatus(els.authStatus, 'Init first', false);
+        try {
+          await signOut(auth);
+          setStatus(els.authStatus, 'Signed out', true);
+        } catch (e) {
+          setStatus(els.authStatus, `Sign-out failed: ${e?.message || e}`, false);
+        }
+      });
+
+      els.emailSignInBtn.addEventListener('click', async () => {
+        if (!auth) return setStatus(els.authStatus, 'Init first', false);
+        try {
+          await signInWithEmailAndPassword(auth, els.email.value.trim(), els.password.value);
+          setStatus(els.authStatus, 'Email sign-in ok', true);
+        } catch (e) {
+          setStatus(els.authStatus, `Email sign-in failed: ${e?.message || e}`, false);
+        }
+      });
+
+      els.emailRegisterBtn.addEventListener('click', async () => {
+        if (!auth) return setStatus(els.authStatus, 'Init first', false);
+        try {
+          await createUserWithEmailAndPassword(auth, els.email.value.trim(), els.password.value);
+          setStatus(els.authStatus, 'Account created', true);
+        } catch (e) {
+          setStatus(els.authStatus, `Create failed: ${e?.message || e}`, false);
+        }
+      });
+
+      els.tokenBtn.addEventListener('click', async () => {
+        if (!auth || !auth.currentUser) return setStatus(els.authStatus, 'Not signed in', false);
+        try {
+          const t = await auth.currentUser.getIdToken(/* forceRefresh= */ true);
+          els.tokenOut.value = t;
+          setStatus(els.authStatus, 'Token copied to box', true);
+        } catch (e) {
+          setStatus(els.authStatus, `Token error: ${e?.message || e}`, false);
+        }
+      });
+
+      els.copyBtn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(els.tokenOut.value);
+          setStatus(els.authStatus, 'Copied', true);
+        } catch (e) {
+          setStatus(els.authStatus, `Copy failed`, false);
+        }
+      });
+
+      els.inferBtn.addEventListener('click', async () => {
+        if (!auth || !auth.currentUser) return setStatus(els.authStatus, 'Not signed in', false);
+        const f = els.fileInput.files?.[0];
+        if (!f) {
+          els.inferOut.textContent = 'Choose a file';
+          return;
+        }
+        try {
+          const token = await auth.currentUser.getIdToken();
+          const fd = new FormData();
+          fd.append('file', f);
+          fd.append('sampleRate', String(els.sampleRate.value || '48000'));
+          fd.append('durationSec', String(els.durationSec.value || '5'));
+          const res = await fetch(els.backendUrl.value, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: fd,
+          });
+          const text = await res.text();
+          els.inferOut.textContent = `${res.status} ${res.statusText}\n${text}`;
+        } catch (e) {
+          els.inferOut.textContent = `Error: ${e?.message || e}`;
+        }
+      });
+    </script>
+  </body>
+</html>
