@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="mt-6">
+  <div class="card p-6 mb-4">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-semibold">Activity</h2>
+      <a href="/export" class="btn">Export</a>
+    </div>
+    <div class="grid md:grid-cols-4 gap-3">
+      <div>
+        <label class="text-sm text-gray-600">From</label>
+        <input id="fromDate" type="date" class="input"/>
+      </div>
+      <div>
+        <label class="text-sm text-gray-600">To</label>
+        <input id="toDate" type="date" class="input"/>
+      </div>
+      <div>
+        <label class="text-sm text-gray-600">Type</label>
+        <select id="typeFilter" class="input">
+          <option value="all">All</option>
+          <option value="MED_EVENT">Med events</option>
+          <option value="SYMPTOM_LOG">Symptom logs</option>
+        </select>
+      </div>
+      <div class="flex items-end">
+        <button id="applyBtn" class="btn w-full">Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card p-6">
+    <div id="emptyState" class="text-sm text-gray-600 hidden">No activity in this range.</div>
+    <div id="list" class="space-y-3"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/activity.js"></script>
+{% endblock %}
+
+

@@ -49,3 +49,21 @@ def complete_assessment():
     return render_template("assessment.html")
 
 
+@pages_bp.get("/logs")
+def logs():
+    return render_template("logs.html")
+
+
+## Removed timeline and insights routes per update
+
+
+@pages_bp.get("/export")
+def export():
+    return render_template("export.html")
+
+
+@pages_bp.get("/activity")
+def activity():
+    return render_template("activity.html")
+
+

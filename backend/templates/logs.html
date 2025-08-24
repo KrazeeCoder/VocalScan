@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="grid lg:grid-cols-2 gap-6 mt-6">
+  <div class="rounded-xl border border-gray-200 bg-white shadow-sm p-6">
+    <h2 class="text-xl font-semibold mb-4">Log Medication</h2>
+    <div class="space-y-3">
+      <label class="block text-sm">Medication ID (optional)</label>
+      <input id="medId" class="input" placeholder="medId or leave blank"/>
+      <label class="block text-sm">Scheduled Time (HH:MM, optional)</label>
+      <input id="scheduledTime" class="input" placeholder="18:00"/>
+      <div class="flex items-center gap-3">
+        <label class="text-sm">Taken?</label>
+        <input type="checkbox" id="taken" checked />
+      </div>
+      <label class="block text-sm">Notes</label>
+      <textarea id="medNotes" class="input" rows="2" placeholder="Notes"></textarea>
+      <button id="saveMed" class="btn w-full">Save Med Event</button>
+      <div id="medMsg" class="text-sm text-gray-600"></div>
+    </div>
+  </div>
+
+  <div class="rounded-xl border border-gray-200 bg-white shadow-sm p-6">
+    <h2 class="text-xl font-semibold mb-4">Log Symptoms</h2>
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm">Motor control <span class="text-gray-500 text-xs">(0 = very poor, 10 = excellent)</span></label>
+        <div class="flex items-center gap-3">
+          <input id="motor" type="range" min="0" max="10" value="5" class="w-full"/>
+          <span id="motorVal" class="text-sm w-8 text-right">5</span>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm">Voice quality <span class="text-gray-500 text-xs">(0 = very weak, 10 = strong)</span></label>
+        <div class="flex items-center gap-3">
+          <input id="voice" type="range" min="0" max="10" value="5" class="w-full"/>
+          <span id="voiceVal" class="text-sm w-8 text-right">5</span>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm">Cognition/clarity <span class="text-gray-500 text-xs">(0 = very foggy, 10 = very clear)</span></label>
+        <div class="flex items-center gap-3">
+          <input id="cognition" type="range" min="0" max="10" value="5" class="w-full"/>
+          <span id="cognitionVal" class="text-sm w-8 text-right">5</span>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm">Mood <span class="text-gray-500 text-xs">(0 = low, 10 = great)</span></label>
+        <div class="flex items-center gap-3">
+          <input id="mood" type="range" min="0" max="10" value="5" class="w-full"/>
+          <span id="moodVal" class="text-sm w-8 text-right">5</span>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm">Fatigue <span class="text-gray-500 text-xs">(0 = exhausted, 10 = energized)</span></label>
+        <div class="flex items-center gap-3">
+          <input id="fatigue" type="range" min="0" max="10" value="5" class="w-full"/>
+          <span id="fatigueVal" class="text-sm w-8 text-right">5</span>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm">Status</label>
+        <select id="onOff" class="input">
+          <option>Unknown</option>
+          <option>ON</option>
+          <option>OFF</option>
+        </select>
+      </div>
+    </div>
+    <label class="block text-sm mt-3">Notes</label>
+    <textarea id="symNotes" class="input" rows="2" placeholder="Notes"></textarea>
+    <button id="saveSym" class="btn w-full mt-3">Save Symptom Log</button>
+    <div id="symMsg" class="text-sm text-gray-600"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/logs.js"></script>
+{% endblock %}
+
+
