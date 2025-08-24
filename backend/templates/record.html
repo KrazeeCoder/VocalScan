@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="grid lg:grid-cols-3 gap-6 mt-6">
+  <div class="lg:col-span-2 rounded-xl border border-gray-200 bg-white shadow-sm p-6">
+    <h2 class="text-xl font-semibold mb-4">Record</h2>
+    <div class="flex items-center gap-3 mb-4">
+      <button id="startBtn" class="btn">Start</button>
+      <button id="stopBtn" class="btn" disabled>Stop</button>
+      <span id="timer" class="text-gray-600">00:00</span>
+    </div>
+    <canvas id="wave" width="1000" height="160" class="w-full border rounded"></canvas>
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-white shadow-sm p-6">
+    <h3 class="font-semibold mb-3">Submit</h3>
+    <div class="space-y-3">
+      <div>
+        <label class="text-sm text-gray-600">Sample Rate</label>
+        <input id="sampleRate" class="input" type="number" value="48000" />
+      </div>
+      <button id="submitBtn" class="inline-flex items-center px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 w-full" disabled>Upload & Analyze</button>
+      <div id="result" class="text-sm text-gray-700"></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/record.js"></script>
+{% endblock %}
+
+

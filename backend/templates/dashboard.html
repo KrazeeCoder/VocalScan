@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="mt-6 grid gap-6 lg:grid-cols-3">
+  <div class="lg:col-span-2 rounded-xl border border-gray-200 bg-white shadow-sm p-6">
+    <h2 class="text-xl font-semibold mb-4">Latest Results</h2>
+    <table class="w-full text-left text-sm">
+      <thead>
+        <tr class="text-gray-500">
+          <th class="py-2">Time</th>
+          <th>Risk</th>
+          <th>Confidence</th>
+          <th>Resp</th>
+          <th>Neuro</th>
+        </tr>
+      </thead>
+      <tbody id="historyRows"></tbody>
+    </table>
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-white shadow-sm p-6">
+    <h3 class="font-semibold mb-4">Summary</h3>
+    <div id="summary" class="text-sm text-gray-700"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/dashboard.js"></script>
+{% endblock %}
+
+
