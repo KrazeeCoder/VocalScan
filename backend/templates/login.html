@@ -20,13 +20,42 @@
     const auth = window.vsFirebase.auth;
     const provider = new firebase.auth.GoogleAuthProvider();
 
+    // Function to check demographics status and redirect appropriately
+    async function checkDemographicsAndRedirect(user) {
+      try {
+        const idToken = await user.getIdToken();
+        const response = await fetch('/demographics/status', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${idToken}`
+          }
+        });
+        
+        if (response.ok) {
+          const result = await response.json();
+          if (result.demographicsCompleted) {
+            location.href = '/record'; // Go to main app
+          } else {
+            location.href = '/demographics'; // Complete demographics first
+          }
+        } else {
+          // If can't check status, assume demographics needed
+          location.href = '/demographics';
+        }
+      } catch (error) {
+        console.error('Error checking demographics status:', error);
+        // Default to demographics page on error
+        location.href = '/demographics';
+      }
+    }
+
     document.getElementById('emailLoginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value.trim();
       try {
-        await auth.signInWithEmailAndPassword(email, password);
-        location.href = '/record';
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        await checkDemographicsAndRedirect(userCredential.user);
       } catch (err) {
         alert(err.message || 'Failed to sign in');
       }
@@ -38,8 +67,9 @@
       const password = document.getElementById('password').value.trim();
       if (!email || !password) { alert('Enter email and password then click again'); return; }
       try {
-        await auth.createUserWithEmailAndPassword(email, password);
-        location.href = '/record';
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        // New users always need to complete demographics
+        location.href = '/demographics';
       } catch (err) {
         alert(err.message || 'Failed to register');
       }
@@ -47,15 +77,17 @@
 
     document.getElementById('googleBtn').addEventListener('click', async () => {
       try {
-        await auth.signInWithPopup(provider);
-        location.href = '/record';
+        const userCredential = await auth.signInWithPopup(provider);
+        await checkDemographicsAndRedirect(userCredential.user);
       } catch (err) {
         alert(err.message || 'Google sign-in failed');
       }
     });
 
-    auth.onAuthStateChanged((user) => {
-      if (user) location.href = '/record';
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        await checkDemographicsAndRedirect(user);
+      }
     });
   });
 </script>

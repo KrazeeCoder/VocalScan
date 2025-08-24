@@ -20,7 +20,37 @@
   }
 
   auth.onAuthStateChanged(async (user) => {
-    if (!user) { location.href = '/login'; return; }
+    if (!user) { 
+      location.href = '/login'; 
+      return; 
+    }
+    
+    // Check demographics completion
+    try {
+      const idToken = await user.getIdToken();
+      const response = await fetch('/demographics/status', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${idToken}`
+        }
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        if (!result.demographicsCompleted) {
+          location.href = '/demographics';
+          return;
+        }
+      } else {
+        location.href = '/demographics';
+        return;
+      }
+    } catch (error) {
+      console.error('Error checking demographics status:', error);
+      location.href = '/demographics';
+      return;
+    }
+    
     const tbody = document.getElementById('historyRows');
 
     const [voice, spirals] = await Promise.all([loadVoice(user), loadSpirals(user)]);

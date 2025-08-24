@@ -203,3 +203,67 @@ def spiral_infer():
     )
 
 
+@infer_bp.post("/demographics")
+def submit_demographics():
+    """Save user demographic information to Firestore."""
+    try:
+        uid, _claims = verify_firebase_id_token(request)
+    except AuthError as exc:
+        return jsonify({"error": str(exc)}), 401
+
+    # Get JSON data from request
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No demographic data provided"}), 400
+
+    # Validate required fields
+    required_fields = ["age", "gender", "medicalHistory"]
+    for field in required_fields:
+        if field not in data:
+            return jsonify({"error": f"Missing required field: {field}"}), 400
+
+    # Prepare demographic data
+    demographic_data = {
+        "age": data.get("age"),
+        "gender": data.get("gender"),
+        "medicalHistory": data.get("medicalHistory"),
+        "symptoms": data.get("symptoms", []),
+        "medications": data.get("medications", []),
+        "familyHistory": data.get("familyHistory", []),
+        "lifestyle": data.get("lifestyle", {}),
+        "contactInfo": data.get("contactInfo", {}),
+        "emergencyContact": data.get("emergencyContact", {}),
+        "demographicsCompleted": True,
+        "demographicsCompletedAt": firestore.SERVER_TIMESTAMP,
+        "updatedAt": firestore.SERVER_TIMESTAMP,
+    }
+
+    # Update user document with demographic information
+    db = firestore.client()
+    user_ref = db.collection("users").document(uid)
+    user_ref.set(demographic_data, merge=True)
+
+    return jsonify({"success": True, "message": "Demographics saved successfully"}), 200
+
+
+@infer_bp.get("/demographics/status")
+def check_demographics_status():
+    """Check if user has completed demographics."""
+    try:
+        uid, _claims = verify_firebase_id_token(request)
+    except AuthError as exc:
+        return jsonify({"error": str(exc)}), 401
+
+    db = firestore.client()
+    user_ref = db.collection("users").document(uid)
+    user_doc = user_ref.get()
+    
+    if user_doc.exists:
+        user_data = user_doc.to_dict()
+        demographics_completed = user_data.get("demographicsCompleted", False)
+    else:
+        demographics_completed = False
+
+    return jsonify({"demographicsCompleted": demographics_completed}), 200
+
+
