@@ -50,10 +50,12 @@ def create_app() -> Flask:
 
     # Register blueprints
     from .infer import infer_bp
+    from .api import api_bp
     from .pages import pages_bp
 
     app.register_blueprint(pages_bp)
     app.register_blueprint(infer_bp)
+    app.register_blueprint(api_bp)
 
     # Root redirects to login page (client guards will redirect post-login)
     @app.get("/")
