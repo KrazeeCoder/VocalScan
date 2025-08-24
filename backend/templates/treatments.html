@@ -31,7 +31,7 @@
     <div class="flex flex-col md:flex-row gap-4">
       <div class="flex-1">
         <div class="relative">
-          <input type="text" id="searchInput" placeholder="Search treatments..." class="input w-full pl-10">
+          <input type="text" id="searchInput" placeholder="Search treatments..." class="w-full pl-10 px-4 py-3 bg-dark-700 border border-dark-600 text-white placeholder-dark-400 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <svg class="w-5 h-5 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -40,13 +40,13 @@
         </div>
       </div>
       <div class="flex gap-3">
-        <select id="typeFilter" class="input">
+        <select id="typeFilter" class="px-4 py-3 bg-dark-700 border border-dark-600 text-white rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200">
           <option value="">All Types</option>
           <option value="Medication">Medication</option>
           <option value="Supplement">Supplement</option>
           <option value="Therapy">Therapy</option>
         </select>
-        <select id="effectivenessFilter" class="input">
+        <select id="effectivenessFilter" class="px-4 py-3 bg-dark-700 border border-dark-600 text-white rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200">
           <option value="">All Effectiveness</option>
           <option value="Highly effective">Highly Effective</option>
           <option value="Moderately effective">Moderately Effective</option>
@@ -114,7 +114,7 @@
 <!-- Treatment Modal -->
 <div id="treatment-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50">
   <div class="flex items-center justify-center min-h-screen p-4">
-    <div class="card max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-slide-up">
+    <div class="bg-dark-800 border border-dark-700 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-slide-up">
       <div class="p-8">
         <div class="flex justify-between items-center mb-6">
           <h3 id="modal-title" class="text-2xl font-bold text-white"></h3>
