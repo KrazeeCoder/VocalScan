@@ -89,17 +89,18 @@ def extract_ucipd_from_wav(
     max_period_factor = 1.3
     max_amplitude_factor = 1.6
 
+    # Jitter metrics operate on PointProcess only
     jitter_local = call(
-        [snd, point_process], "Get jitter (local)", tmin, tmax, period_floor, period_ceiling, max_period_factor
+        point_process, "Get jitter (local)", tmin, tmax, period_floor, period_ceiling, max_period_factor
     )
     jitter_local_abs = call(
-        [snd, point_process], "Get jitter (local, absolute)", tmin, tmax, period_floor, period_ceiling, max_period_factor
+        point_process, "Get jitter (local, absolute)", tmin, tmax, period_floor, period_ceiling, max_period_factor
     )
     jitter_rap = call(
-        [snd, point_process], "Get jitter (rap)", tmin, tmax, period_floor, period_ceiling, max_period_factor
+        point_process, "Get jitter (rap)", tmin, tmax, period_floor, period_ceiling, max_period_factor
     )
     jitter_ppq5 = call(
-        [snd, point_process], "Get jitter (ppq5)", tmin, tmax, period_floor, period_ceiling, max_period_factor
+        point_process, "Get jitter (ppq5)", tmin, tmax, period_floor, period_ceiling, max_period_factor
     )
 
     shimmer_local = call(

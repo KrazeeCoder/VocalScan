@@ -33,9 +33,25 @@
   }
 
   async function loadVoice(user){
-    const q = db.collection('users').doc(user.uid).collection('voiceRecordings').orderBy('createdAt','desc').limit(20);
-    const snap = await q.get();
-    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const voiceRecRef = db.collection('users').doc(user.uid).collection('voiceRecordings').orderBy('createdAt','desc').limit(20);
+    const recSnap = await voiceRecRef.get();
+    const recs = recSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // Include therapy voice sessions (may not have createdAt or risk fields)
+    const sessRef = db.collection('users').doc(user.uid).collection('voiceSessions').limit(20);
+    const sessSnap = await sessRef.get();
+    const sessions = sessSnap.docs.map(d => {
+      const data = d.data();
+      // derive a pseudo risk from predicted probability if available
+      let riskLevel = data.riskLevel;
+      const p = data.predicted;
+      if (!riskLevel && typeof p === 'number') {
+        riskLevel = p >= 0.66 ? 'HIGH' : (p >= 0.33 ? 'MEDIUM' : 'LOW');
+      }
+      return { id: d.id, ...data, riskLevel };
+    });
+
+    return [...recs, ...sessions];
   }
 
   async function loadSpirals(user){

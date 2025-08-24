@@ -44,6 +44,11 @@ def treatments():
     return render_template("treatments.html")
 
 
+@pages_bp.get("/therapy")
+def therapy():
+    return render_template("therapy.html")
+
+
 @pages_bp.get("/assessment")
 def complete_assessment():
     return render_template("assessment.html")

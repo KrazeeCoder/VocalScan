@@ -5,6 +5,9 @@ python-dotenv>=1.0,<2
 gunicorn>=21.2,<22
 reportlab>=4.0,<5
 google-cloud-storage>=2.18,<3
+librosa>=0.10,<1
+soundfile>=0.12,<1
+praat-parselmouth>=0.4,<1
 
 torch>=2.2,<3
 torchvision>=0.17,<1
