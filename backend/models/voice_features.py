@@ -116,12 +116,23 @@ def extract_ucipd_from_wav(
         except Exception:
             return float(default)
 
-    jitter_local = _pp_call("Get jitter (local)", tmin, tmax, period_floor, period_ceiling, max_period_factor)
-    jitter_local_abs = _pp_call(
-        "Get jitter (local, absolute)", tmin, tmax, period_floor, period_ceiling, max_period_factor
+    #jitter_local = _pp_call("Get jitter (local)", tmin, tmax, period_floor, period_ceiling, max_period_factor)
+    #jitter_local_abs = _pp_call("Get jitter (local, absolute)", tmin, tmax, period_floor, period_ceiling, max_period_factor)
+    # Jitter metrics operate on PointProcess only
+    jitter_local = call(
+        point_process, "Get jitter (local)", tmin, tmax, period_floor, period_ceiling, max_period_factor
+    )
+    jitter_local_abs = call(
+        point_process, "Get jitter (local, absolute)", tmin, tmax, period_floor, period_ceiling, max_period_factor
     )
     jitter_rap = _pp_call("Get jitter (rap)", tmin, tmax, period_floor, period_ceiling, max_period_factor)
     jitter_ppq5 = _pp_call("Get jitter (ppq5)", tmin, tmax, period_floor, period_ceiling, max_period_factor)
+    jitter_rap = call(
+        point_process, "Get jitter (rap)", tmin, tmax, period_floor, period_ceiling, max_period_factor
+    )
+    jitter_ppq5 = call(
+        point_process, "Get jitter (ppq5)", tmin, tmax, period_floor, period_ceiling, max_period_factor
+    )
 
     shimmer_local = _pp_call(
         "Get shimmer (local)", tmin, tmax, period_floor, period_ceiling, max_period_factor, max_amplitude_factor
