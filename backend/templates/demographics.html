@@ -286,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       if (response.ok) {
         alert('Profile completed successfully!');
-        location.href = '/record'; // Redirect to main app
+        location.href = '/dashboard'; // Redirect to dashboard for welcome flow
       } else {
         alert('Error: ' + (result.error || 'Failed to save demographics'));
       }

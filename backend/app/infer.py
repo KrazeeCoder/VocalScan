@@ -216,27 +216,41 @@ def submit_demographics():
     if not data:
         return jsonify({"error": "No demographic data provided"}), 400
 
-    # Validate required fields
-    required_fields = ["age", "gender", "medicalHistory"]
-    for field in required_fields:
-        if field not in data:
-            return jsonify({"error": f"Missing required field: {field}"}), 400
+    # Validate required fields (skip validation for welcome flow updates)
+    if not data.get("welcomeFlowStarted") and not data.get("welcomeFlowCompleted"):
+        required_fields = ["age", "gender", "medicalHistory"]
+        for field in required_fields:
+            if field not in data:
+                return jsonify({"error": f"Missing required field: {field}"}), 400
 
     # Prepare demographic data
     demographic_data = {
-        "age": data.get("age"),
-        "gender": data.get("gender"),
-        "medicalHistory": data.get("medicalHistory"),
-        "symptoms": data.get("symptoms", []),
-        "medications": data.get("medications", []),
-        "familyHistory": data.get("familyHistory", []),
-        "lifestyle": data.get("lifestyle", {}),
-        "contactInfo": data.get("contactInfo", {}),
-        "emergencyContact": data.get("emergencyContact", {}),
-        "demographicsCompleted": True,
-        "demographicsCompletedAt": firestore.SERVER_TIMESTAMP,
         "updatedAt": firestore.SERVER_TIMESTAMP,
     }
+
+    # Only add full demographic data if this isn't just a welcome flow update
+    if not data.get("welcomeFlowStarted") and not data.get("welcomeFlowCompleted"):
+        demographic_data.update({
+            "age": data.get("age"),
+            "gender": data.get("gender"),
+            "medicalHistory": data.get("medicalHistory"),
+            "symptoms": data.get("symptoms", []),
+            "medications": data.get("medications", []),
+            "familyHistory": data.get("familyHistory", []),
+            "lifestyle": data.get("lifestyle", {}),
+            "contactInfo": data.get("contactInfo", {}),
+            "emergencyContact": data.get("emergencyContact", {}),
+            "demographicsCompleted": True,
+            "demographicsCompletedAt": firestore.SERVER_TIMESTAMP,
+        })
+
+    # Handle welcome flow flags
+    if "welcomeFlowStarted" in data:
+        demographic_data["welcomeFlowStarted"] = data["welcomeFlowStarted"]
+    if "welcomeFlowCompleted" in data:
+        demographic_data["welcomeFlowCompleted"] = data["welcomeFlowCompleted"]
+        if data["welcomeFlowCompleted"]:
+            demographic_data["welcomeFlowCompletedAt"] = firestore.SERVER_TIMESTAMP
 
     # Update user document with demographic information
     db = firestore.client()
@@ -261,9 +275,14 @@ def check_demographics_status():
     if user_doc.exists:
         user_data = user_doc.to_dict()
         demographics_completed = user_data.get("demographicsCompleted", False)
+        welcome_flow_completed = user_data.get("welcomeFlowCompleted", False)
     else:
         demographics_completed = False
+        welcome_flow_completed = False
 
-    return jsonify({"demographicsCompleted": demographics_completed}), 200
+    return jsonify({
+        "demographicsCompleted": demographics_completed,
+        "welcomeFlowCompleted": welcome_flow_completed
+    }), 200
 
 

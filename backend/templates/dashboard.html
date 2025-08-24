@@ -2,8 +2,11 @@
 {% block content %}
 <div class="mt-6 grid gap-6 lg:grid-cols-3">
   <div class="lg:col-span-2 rounded-xl border border-gray-200 bg-white shadow-sm p-6">
-    <h2 class="text-xl font-semibold mb-4">Latest Results</h2>
-    <table class="w-full text-left text-sm">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-semibold">Latest Results</h2>
+      <button id="start-welcome-tour" style="padding: 6px 12px; background: #4f46e5; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">Start Tour</button>
+    </div>
+    <table id="historyTable" class="w-full text-left text-sm">
       <thead>
         <tr class="text-gray-500">
           <th class="py-2">Time</th>
@@ -25,6 +28,20 @@
 
 {% block scripts %}
 <script src="/static/js/dashboard.js"></script>
+<script>
+  // Manual tour start for testing
+  document.addEventListener('DOMContentLoaded', () => {
+    const startTourBtn = document.getElementById('start-welcome-tour');
+    if (startTourBtn) {
+      startTourBtn.addEventListener('click', () => {
+        console.log('Manual tour start clicked');
+        if (window.vsWelcome) {
+          window.vsWelcome.start();
+        }
+      });
+    }
+  });
+</script>
 {% endblock %}
 
 
