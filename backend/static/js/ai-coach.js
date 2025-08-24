@@ -68,28 +68,56 @@ class AICoach {
         this.hideSuccess();
 
         try {
-            const systemPrompt = `You are an AI coach helping Parkinson's patients with safe, gentle exercise scheduling. Suggest short daily exercises based on their input, and keep it simple.
+            // Get user demographics first
+            let demographics = null;
+            try {
+                const user = firebase.auth().currentUser;
+                if (user) {
+                    const idToken = await user.getIdToken();
+                    const response = await fetch('/demographics/data', {
+                        headers: {
+                            'Authorization': `Bearer ${idToken}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const userData = await response.json();
+                        if (userData.demographicsCompleted) {
+                            demographics = userData;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.log('Could not fetch demographics:', error);
+                // Continue without demographics if there's an error
+            }
+
+            const systemPrompt = `You are a specialized AI exercise coach EXCLUSIVELY for Parkinson's disease patients. This is a Parkinson's-focused platform, so all recommendations must be specifically tailored for Parkinson's disease management.
 
 **Your Role:**
-- Create personalized exercise plans for Parkinson's disease patients
-- Focus on safety and gentle movements
-- Address specific symptoms mentioned by the patient
-- Keep exercises simple and achievable
+- Create personalized exercise plans specifically for Parkinson's disease patients
+- Focus on Parkinson's-specific symptoms and challenges
+- Address the unique needs of Parkinson's patients
+- Keep exercises safe, gentle, and achievable for Parkinson's patients
 
-**Parkinson's-Specific Focus:**
-- Bradykinesia (slowness) - exercises to improve speed and coordination
-- Rigidity (stiffness) - gentle stretching and range of motion
-- Tremor management - stability and fine motor skills
-- Postural instability - balance and core strengthening
-- Gait disturbances - walking and stepping exercises
-- Freezing episodes - movement initiation exercises
+**Parkinson's-Specific Focus Areas:**
+- **Bradykinesia (slowness of movement)** - exercises to improve speed and coordination
+- **Rigidity (muscle stiffness)** - gentle stretching and range of motion exercises
+- **Tremor management** - stability and fine motor skill exercises
+- **Postural instability** - balance and core strengthening exercises
+- **Gait disturbances** - walking and stepping exercises
+- **Freezing episodes** - movement initiation exercises
+- **Voice and speech issues** - breathing and vocal exercises
+- **Fine motor skills** - hand and finger coordination exercises
 
-**Safety Guidelines:**
-- Always include safety considerations
+**Safety Guidelines for Parkinson's:**
+- Always include safety considerations for fall prevention
 - Emphasize slow, deliberate movements
 - Include rest periods between exercises
-- Recommend seated exercises if needed
-- Focus on functional movements
+- Recommend exercises that can be done seated if needed
+- Focus on functional movements that improve daily activities
+- Consider medication timing and "on/off" periods
+- Include caregiver support recommendations where appropriate
 
 **Format Requirements:**
 - Use **bold** for section headers
@@ -97,8 +125,19 @@ class AICoach {
 - Include specific time recommendations
 - Add safety notes where relevant
 - Keep exercises simple and achievable
+- Include modifications for different ability levels
 
-Make each exercise plan specifically tailored to Parkinson's disease management and symptom improvement.`;
+**Patient Context:**
+${demographics ? `
+- Age: ${demographics.age || 'Not specified'}
+- Gender: ${demographics.gender || 'Not specified'}
+- Medical History: ${demographics.medicalHistory || 'Not specified'}
+- Current Symptoms: ${demographics.symptoms ? demographics.symptoms.join(', ') : 'Not specified'}
+- Medications: ${demographics.medications ? demographics.medications.join(', ') : 'None specified'}
+- Exercise Level: ${demographics.lifestyle?.exercise || 'Not specified'}
+` : '- No demographic information available'}
+
+Make each exercise plan specifically tailored to Parkinson's disease management and symptom improvement. Consider the patient's specific symptoms, age, and current condition.`;
 
             const requestBody = {
                 contents: [{
@@ -376,79 +415,79 @@ Make each exercise plan specifically tailored to Parkinson's disease management 
             'stiff': `Based on your Parkinson's rigidity (muscle stiffness), here's a specialized exercise plan:
 
 **Morning Range of Motion (8-10 minutes)**
-- Gentle neck rotations - turn head slowly side to side
-- Shoulder shrugs and rolls to reduce upper body stiffness
-- Arm circles - start small, gradually increase size
-- Hip circles while standing near support
-- Ankle and wrist rotations
+- Gentle neck rotations - turn head slowly side to side (5 reps each direction)
+- Shoulder shrugs and rolls to reduce upper body stiffness (10 reps)
+- Arm circles - start small, gradually increase size (5 forward, 5 backward)
+- Hip circles while standing near support (5 each direction)
+- Ankle and wrist rotations (10 each direction)
 
 **Balance and Posture (7 minutes)**
-- Stand near wall, practice shifting weight foot to foot
-- Gentle side-to-side swaying with support
-- Heel-to-toe standing (tandem stance) with support
-- Sit-to-stand exercises (3-5 repetitions)
+- Stand near wall, practice shifting weight foot to foot (30 seconds each side)
+- Gentle side-to-side swaying with support (1 minute)
+- Heel-to-toe standing (tandem stance) with support (30 seconds)
+- Sit-to-stand exercises (3-5 repetitions with 30-second rest between)
 
 **Gait Training (10 minutes)**
-- Slow, deliberate steps with heel-to-toe pattern
-- Practice turning while walking (wide turns)
+- Slow, deliberate steps with heel-to-toe pattern (2 minutes)
+- Practice turning while walking (wide turns) - 5 turns each direction
 - Use walking aids if needed for safety
-- Focus on arm swing coordination
+- Focus on arm swing coordination (2 minutes)
 
 **Breathing and Relaxation (5 minutes)**
-- Deep breathing with hand on belly
-- Progressive muscle relaxation
-- Gentle stretching while seated
+- Deep breathing with hand on belly (10 breaths)
+- Progressive muscle relaxation (3 minutes)
+- Gentle stretching while seated (2 minutes)
 
-**Safety Notes:** Always have support nearby, move slowly, and stop if you feel dizzy or unsteady.`,
+**Safety Notes:** Always have support nearby, move slowly, and stop if you feel dizzy or unsteady. Consider doing exercises during your "on" medication periods for best results.`,
 
             'shaky': `For Parkinson's tremor management, here's a specialized exercise plan:
 
 **Tremor Control Exercises (10 minutes)**
-- Finger tapping on table - start slow, increase speed gradually
-- Thumb to each finger touch - focus on precision
-- Gentle hand squeezes with soft ball or stress ball
-- Wrist circles - small, controlled movements
-- Hand stabilization exercises - rest hands on table, practice lifting fingers individually
+- Finger tapping on table - start slow, increase speed gradually (2 minutes)
+- Thumb to each finger touch - focus on precision (2 minutes)
+- Gentle hand squeezes with soft ball or stress ball (2 minutes)
+- Wrist circles - small, controlled movements (2 minutes)
+- Hand stabilization exercises - rest hands on table, practice lifting fingers individually (2 minutes)
 
 **Arm Stability Training (8 minutes)**
-- Rest arms on table, palms down, practice lifting fingers one by one
-- Gentle arm raises to shoulder level with controlled movement
-- Wall push-ups (standing) for arm strength
-- Shoulder blade squeezes to improve posture
+- Rest arms on table, palms down, practice lifting fingers one by one (2 minutes)
+- Gentle arm raises to shoulder level with controlled movement (2 minutes)
+- Wall push-ups (standing) for arm strength (2 minutes)
+- Shoulder blade squeezes to improve posture (2 minutes)
 
 **Fine Motor Skills (7 minutes)**
-- Pick up small objects (coins, buttons) with precision
-- Practice writing with larger movements and weighted pens
-- Use weighted utensils if helpful for daily activities
-- Button and zipper practice with larger items
+- Pick up small objects (coins, buttons) with precision (2 minutes)
+- Practice writing with larger movements and weighted pens (2 minutes)
+- Use weighted utensils if helpful for daily activities (1 minute)
+- Button and zipper practice with larger items (2 minutes)
 
 **Relaxation and Breathing (5 minutes)**
-- Deep breathing exercises to reduce stress
-- Progressive muscle relaxation
-- Gentle hand and wrist stretches
+- Deep breathing exercises to reduce stress (2 minutes)
+- Progressive muscle relaxation (2 minutes)
+- Gentle hand and wrist stretches (1 minute)
 
-**Safety Notes:** Take breaks as needed, don't rush movements, and use support if needed for balance.`,
+**Safety Notes:** Take breaks as needed, don't rush movements, and use support if needed for balance. Consider using weighted utensils and adaptive equipment for daily activities.`,
 
             'tired': `For Parkinson's fatigue management, here's a specialized energy-boosting plan:
 
 **Gentle Movement Initiation (5 minutes)**
-- Slow marching in place with arm coordination
-- Gentle arm swings to improve mobility
-- Shoulder rolls to reduce stiffness
-- Ankle pumps while seated
+- Slow marching in place with arm coordination (2 minutes)
+- Gentle arm swings to improve mobility (1 minute)
+- Shoulder rolls to reduce stiffness (1 minute)
+- Ankle pumps while seated (1 minute)
 
 **Seated Strength Building (10 minutes)**
-- Ankle circles and foot exercises
-- Knee lifts while seated (alternating legs)
-- Gentle torso twists with arm movement
-- Arm raises to shoulder level with controlled movement
-- Seated leg extensions
+- Ankle circles and foot exercises (2 minutes)
+- Knee lifts while seated (alternating legs) (2 minutes)
+- Gentle torso twists with arm movement (2 minutes)
+- Arm raises to shoulder level with controlled movement (2 minutes)
+- Seated leg extensions (2 minutes)
 
 **Energy and Breathing (5 minutes)**
-- Deep breathing exercises to increase oxygen flow
-- Gentle stretching while seated
-- Progressive muscle relaxation
-- Mental imagery exercises
+- Deep breathing exercises to increase oxygen flow (2 minutes)
+- Gentle stretching while seated (1 minute)
+- Progressive muscle relaxation (1 minute)
+- Mental imagery exercises (1 minute)
 
 **Rest and Recovery**
 - Take 2-3 minute breaks between exercise sets
@@ -456,7 +495,7 @@ Make each exercise plan specifically tailored to Parkinson's disease management 
 - Listen to your body's energy levels
 - Practice energy conservation techniques
 
-**Safety Notes:** It's okay to do less if you're very tired. Quality over quantity. Stop if you feel dizzy or overly fatigued.`
+**Safety Notes:** It's okay to do less if you're very tired. Quality over quantity. Stop if you feel dizzy or overly fatigued. Consider doing exercises during your "on" medication periods when you have more energy.`
         };
 
         // Find the best matching plan based on keywords
@@ -472,30 +511,29 @@ Make each exercise plan specifically tailored to Parkinson's disease management 
             return `Based on your Parkinson's symptoms, here's a comprehensive exercise plan:
 
 **Warm-up and Mobility (8 minutes)**
-- Gentle stretching focusing on stiff areas
-- Deep breathing exercises
-- Slow walking in place with arm coordination
-- Range of motion exercises for neck, shoulders, and hips
+- Gentle stretching focusing on stiff areas (2 minutes)
+- Deep breathing exercises (2 minutes)
+- Slow walking in place with arm coordination (2 minutes)
+- Range of motion exercises for neck, shoulders, and hips (2 minutes)
 
 **Balance and Posture (10 minutes)**
-- Standing near support, practice weight shifting
-- Heel-to-toe standing (tandem stance) with support
-- Gentle side-to-side movements
-- Sit-to-stand exercises (3-5 repetitions)
+- Standing near support, practice weight shifting (2 minutes)
+- Heel-to-toe standing (tandem stance) with support (2 minutes)
+- Gentle side-to-side movements (2 minutes)
+- Sit-to-stand exercises (3-5 repetitions with 30-second rest between) (4 minutes)
 
 **Strength and Coordination (7 minutes)**
-- Seated leg lifts with controlled movement
-- Arm raises with coordination
-- Gentle resistance exercises using body weight
-- Fine motor skill exercises
+- Seated leg lifts with controlled movement (2 minutes)
+- Arm raises with coordination (2 minutes)
+- Gentle resistance exercises using body weight (2 minutes)
+- Fine motor skill exercises (1 minute)
 
 **Cool-down and Relaxation (5 minutes)**
-- Gentle stretching while seated
-- Progressive muscle relaxation
-- Deep breathing exercises
-- Mental imagery for stress reduction
+- Gentle stretching while seated (2 minutes)
+- Progressive muscle relaxation (2 minutes)
+- Deep breathing exercises (1 minute)
 
-**Safety Notes:** Always have support nearby, move slowly and deliberately, and stop if you feel dizzy or unsteady. Focus on quality of movement over quantity.`;
+**Safety Notes:** Always have support nearby, move slowly and deliberately, and stop if you feel dizzy or unsteady. Focus on quality of movement over quantity. Consider doing exercises during your "on" medication periods for best results.`;
         }
     }
 }

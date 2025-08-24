@@ -514,6 +514,46 @@ def check_demographics_status():
     }), 200
 
 
+@infer_bp.get("/demographics/data")
+def get_demographics_data():
+    """Get user demographics data for AI Coach."""
+    try:
+        uid, _claims = verify_firebase_id_token(request)
+    except AuthError as exc:
+        return jsonify({"error": str(exc)}), 401
+
+    db = firestore.client()
+    user_ref = db.collection("users").document(uid)
+    user_doc = user_ref.get()
+    
+    if user_doc.exists:
+        user_data = user_doc.to_dict()
+        demographics_completed = user_data.get("demographicsCompleted", False)
+        
+        if demographics_completed:
+            # Return relevant demographics data for AI Coach
+            return jsonify({
+                "age": user_data.get("age"),
+                "gender": user_data.get("gender"),
+                "medicalHistory": user_data.get("medicalHistory"),
+                "symptoms": user_data.get("symptoms", []),
+                "medications": user_data.get("medications", []),
+                "familyHistory": user_data.get("familyHistory", []),
+                "lifestyle": user_data.get("lifestyle", {}),
+                "demographicsCompleted": True
+            }), 200
+        else:
+            return jsonify({
+                "demographicsCompleted": False,
+                "message": "Demographics not completed"
+            }), 200
+    else:
+        return jsonify({
+            "demographicsCompleted": False,
+            "message": "User not found"
+        }), 200
+
+
 @infer_bp.post("/api/analyze-spiral")
 def analyze_spiral():
     """Analyze spiral drawing from assessment flow.
