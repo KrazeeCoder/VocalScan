@@ -11,6 +11,7 @@
 
   let mediaRecorder;
   let audioChunks = [];
+  let lastWavBlob = null;
   let isRecording = false;
   let recordingStartTime;
 
@@ -97,6 +98,12 @@
 
       mediaRecorder.onstop = async () => {
         const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+        try {
+          lastWavBlob = await webmToWav(audioBlob);
+        } catch (e) {
+          console.warn('WAV conversion failed, continuing without WAV:', e);
+          lastWavBlob = null;
+        }
         await processVoiceRecording(audioBlob);
       };
 
@@ -182,6 +189,60 @@
     } catch (error) {
       console.error('Error processing voice recording:', error);
       showError('Voice analysis failed. Please try again.');
+    }
+  }
+
+  // Convert WebM/Opus blob to WAV (PCM 16-bit) in-browser
+  async function webmToWav(webmBlob){
+    const arrayBuf = await webmBlob.arrayBuffer();
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const audioBuf = await audioCtx.decodeAudioData(arrayBuf);
+    const numChannels = Math.min(1, audioBuf.numberOfChannels);
+    const sampleRate = audioBuf.sampleRate;
+    const length = audioBuf.length;
+    // Mixdown to mono if needed
+    const data = new Float32Array(length);
+    for(let ch=0; ch<numChannels; ch++){
+      const chData = audioBuf.getChannelData(ch);
+      for(let i=0;i<length;i++){ data[i] += chData[i] / numChannels; }
+    }
+    // Encode PCM16 WAV
+    const wavBuffer = encodeWavPcm16(data, sampleRate);
+    return new Blob([wavBuffer], { type: 'audio/wav' });
+  }
+
+  function encodeWavPcm16(samples, sampleRate){
+    const buffer = new ArrayBuffer(44 + samples.length * 2);
+    const view = new DataView(buffer);
+    // RIFF header
+    writeString(view, 0, 'RIFF');
+    view.setUint32(4, 36 + samples.length * 2, true);
+    writeString(view, 8, 'WAVE');
+    // fmt chunk
+    writeString(view, 12, 'fmt ');
+    view.setUint32(16, 16, true); // PCM chunk size
+    view.setUint16(20, 1, true); // audio format PCM
+    view.setUint16(22, 1, true); // channels=1
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * 2, true); // byte rate
+    view.setUint16(32, 2, true); // block align
+    view.setUint16(34, 16, true); // bits per sample
+    // data chunk
+    writeString(view, 36, 'data');
+    view.setUint32(40, samples.length * 2, true);
+    // PCM samples
+    let offset = 44;
+    for (let i = 0; i < samples.length; i++) {
+      let s = Math.max(-1, Math.min(1, samples[i]));
+      view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+      offset += 2;
+    }
+    return buffer;
+  }
+
+  function writeString(view, offset, string){
+    for (let i = 0; i < string.length; i++) {
+      view.setUint8(offset + i, string.charCodeAt(i));
     }
   }
 
@@ -318,6 +379,8 @@
         image: imageDataUrl,
         timestamp: new Date().toISOString()
       };
+      // Keep for multimodal fusion call
+      assessmentData.spiralImageDataUrl = imageDataUrl;
 
       const user = auth.currentUser;
       const idToken = await user.getIdToken();
@@ -396,25 +459,80 @@
   // === COMBINED RESULTS ===
   async function generateCombinedResults() {
     try {
-      // Simulate processing time
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
+      const mm = await callMultimodalInference();
       const voiceResult = assessmentData.voice;
       const spiralResult = assessmentData.spiral;
 
-      // Calculate combined risk assessment
-      const combinedRisk = calculateCombinedRisk(voiceResult, spiralResult);
-      
-      // Display results
-      displayCombinedResults(combinedRisk, voiceResult, spiralResult);
+      let combinedRisk;
+      if (mm) {
+        combinedRisk = {
+          riskLevel: mm.riskLevel,
+          confidence: mm.confidence,
+          voiceAnalysis: voiceResult,
+          spiralAnalysis: spiralResult,
+          recommendations: generateRecommendations(mm.riskLevel)
+        };
+      } else {
+        // Fallback client-side combo
+        combinedRisk = calculateCombinedRisk(voiceResult, spiralResult);
+      }
 
-      // Save to Firebase
+      displayCombinedResults(combinedRisk, voiceResult, spiralResult);
       await saveCombinedAssessment(combinedRisk);
 
     } catch (error) {
       console.error('Error generating combined results:', error);
       showError('Error generating results. Please try again.');
     }
+  }
+
+  async function callMultimodalInference(){
+    try {
+      const user = auth.currentUser;
+      if (!user) return null;
+      const idToken = await user.getIdToken();
+      const fd = new FormData();
+      if (lastWavBlob) {
+        fd.append('audio_wav', lastWavBlob, 'recording.wav');
+      }
+      if (assessmentData.spiralImageDataUrl) {
+        fd.append('spiral_image_b64', assessmentData.spiralImageDataUrl);
+      }
+      const res = await fetch('/api/multimodal/infer', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${idToken}` },
+        body: fd
+      });
+      if (!res.ok) return null;
+      const json = await res.json();
+      console.log('Multimodal result:', json);
+      // Optionally decorate per-modality results for UI
+      if (json.speech?.probs) {
+        assessmentData.voice = {
+          riskLevel: probsToRisk(json.speech.probs),
+          confidence: Math.max(json.speech.probs[0][0], json.speech.probs[0][1])
+        };
+      }
+      if (json.spiral?.probs) {
+        assessmentData.spiral = {
+          riskLevel: probsToRisk(json.spiral.probs),
+          confidence: Math.max(json.spiral.probs[0][0], json.spiral.probs[0][1])
+        };
+      }
+      return json;
+    } catch (e) {
+      console.warn('Multimodal inference failed:', e);
+      return null;
+    }
+  }
+
+  function probsToRisk(probs){
+    try {
+      const pd = probs[0][1];
+      if (pd < 0.33) return 'LOW';
+      if (pd < 0.66) return 'MEDIUM';
+      return 'HIGH';
+    } catch (e) { return 'UNKNOWN'; }
   }
 
   function calculateCombinedRisk(voice, spiral) {

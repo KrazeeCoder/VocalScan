@@ -73,15 +73,34 @@ def extract_ucipd_from_wav(
         ) from e
 
     snd = parselmouth.Sound(wav_path)
-    # Convert to mono if needed (parselmouth handles internally)
     # Pitch extraction (Hertz)
-    pitch = call(snd, "To Pitch", time_step, f0_min_hz, f0_max_hz)
-    mean_f0 = call(pitch, "Get mean", 0, 0, "Hertz")
-    min_f0 = call(pitch, "Get minimum", 0, 0, "Hertz", "Parabolic")
-    max_f0 = call(pitch, "Get maximum", 0, 0, "Hertz", "Parabolic")
+    try:
+        pitch = call(snd, "To Pitch", time_step, f0_min_hz, f0_max_hz)
+    except Exception:
+        # Fallback: auto time step
+        pitch = call(snd, "To Pitch", 0.0, f0_min_hz, f0_max_hz)
+    try:
+        mean_f0 = call(pitch, "Get mean", 0, 0, "Hertz")
+    except Exception:
+        mean_f0 = 0.0
+    try:
+        min_f0 = call(pitch, "Get minimum", 0, 0, "Hertz", "Parabolic")
+    except Exception:
+        min_f0 = mean_f0
+    try:
+        max_f0 = call(pitch, "Get maximum", 0, 0, "Hertz", "Parabolic")
+    except Exception:
+        max_f0 = mean_f0
 
     # Point process for perturbation measures
-    point_process = call([snd, pitch], "To PointProcess (cc)")
+    # Create point process for period-based measures; try robust sequence
+    try:
+        point_process = call([snd, pitch], "To PointProcess (cc)")
+    except Exception:
+        try:
+            point_process = call(snd, "To PointProcess (periodic, cc)", f0_min_hz, f0_max_hz)
+        except Exception:
+            point_process = None
 
     # Recommended defaults per Praat docs
     tmin, tmax = 0, 0
@@ -89,41 +108,46 @@ def extract_ucipd_from_wav(
     max_period_factor = 1.3
     max_amplitude_factor = 1.6
 
-    jitter_local = call(
-        [snd, point_process], "Get jitter (local)", tmin, tmax, period_floor, period_ceiling, max_period_factor
-    )
-    jitter_local_abs = call(
-        [snd, point_process], "Get jitter (local, absolute)", tmin, tmax, period_floor, period_ceiling, max_period_factor
-    )
-    jitter_rap = call(
-        [snd, point_process], "Get jitter (rap)", tmin, tmax, period_floor, period_ceiling, max_period_factor
-    )
-    jitter_ppq5 = call(
-        [snd, point_process], "Get jitter (ppq5)", tmin, tmax, period_floor, period_ceiling, max_period_factor
-    )
+    def _pp_call(cmd: str, *params, default: float = 0.0) -> float:
+        try:
+            if point_process is None:
+                return float(default)
+            return float(call([snd, point_process], cmd, *params))
+        except Exception:
+            return float(default)
 
-    shimmer_local = call(
-        [snd, point_process], "Get shimmer (local)", tmin, tmax, period_floor, period_ceiling, max_period_factor, max_amplitude_factor
+    jitter_local = _pp_call("Get jitter (local)", tmin, tmax, period_floor, period_ceiling, max_period_factor)
+    jitter_local_abs = _pp_call(
+        "Get jitter (local, absolute)", tmin, tmax, period_floor, period_ceiling, max_period_factor
     )
-    shimmer_local_db = call(
-        [snd, point_process], "Get shimmer (local_dB)", tmin, tmax, period_floor, period_ceiling, max_period_factor, max_amplitude_factor
+    jitter_rap = _pp_call("Get jitter (rap)", tmin, tmax, period_floor, period_ceiling, max_period_factor)
+    jitter_ppq5 = _pp_call("Get jitter (ppq5)", tmin, tmax, period_floor, period_ceiling, max_period_factor)
+
+    shimmer_local = _pp_call(
+        "Get shimmer (local)", tmin, tmax, period_floor, period_ceiling, max_period_factor, max_amplitude_factor
     )
-    shimmer_apq3 = call(
-        [snd, point_process], "Get shimmer (apq3)", tmin, tmax, period_floor, period_ceiling, max_period_factor, max_amplitude_factor
+    shimmer_local_db = _pp_call(
+        "Get shimmer (local_dB)", tmin, tmax, period_floor, period_ceiling, max_period_factor, max_amplitude_factor
     )
-    shimmer_apq5 = call(
-        [snd, point_process], "Get shimmer (apq5)", tmin, tmax, period_floor, period_ceiling, max_period_factor, max_amplitude_factor
+    shimmer_apq3 = _pp_call(
+        "Get shimmer (apq3)", tmin, tmax, period_floor, period_ceiling, max_period_factor, max_amplitude_factor
     )
-    shimmer_apq11 = call(
-        [snd, point_process], "Get shimmer (apq11)", tmin, tmax, period_floor, period_ceiling, max_period_factor, max_amplitude_factor
+    shimmer_apq5 = _pp_call(
+        "Get shimmer (apq5)", tmin, tmax, period_floor, period_ceiling, max_period_factor, max_amplitude_factor
     )
-    shimmer_dda = call(
-        [snd, point_process], "Get shimmer (dda)", tmin, tmax, period_floor, period_ceiling, max_period_factor, max_amplitude_factor
+    shimmer_apq11 = _pp_call(
+        "Get shimmer (apq11)", tmin, tmax, period_floor, period_ceiling, max_period_factor, max_amplitude_factor
+    )
+    shimmer_dda = _pp_call(
+        "Get shimmer (dda)", tmin, tmax, period_floor, period_ceiling, max_period_factor, max_amplitude_factor
     )
 
     # Harmonicity
-    harmonicity = call(snd, "To Harmonicity (cc)", 0.01, f0_min_hz, 0.1, 1.0)
-    hnr_db = call(harmonicity, "Get mean", 0, 0)
+    try:
+        harmonicity = call(snd, "To Harmonicity (cc)", 0.01, f0_min_hz, 0.1, 1.0)
+        hnr_db = call(harmonicity, "Get mean", 0, 0)
+    except Exception:
+        hnr_db = 0.0
     # Convert HNR[dB] to NHR (noise-to-harmonic ratio). HNR = 10*log10(H/N) -> NHR = 1/(10^(HNR/10))
     nhr = float(1.0 / (10.0 ** (hnr_db / 10.0))) if np.isfinite(hnr_db) else 0.0
 
@@ -322,7 +346,11 @@ class UCIPDVectorizer:
 
 def vectorize_wav(wav_path: str, vectorizer: UCIPDVectorizer) -> np.ndarray:
     """Convenience: extract features from WAV and standardize into a (1, D) vector."""
-    feats = extract_ucipd_from_wav(wav_path)
+    try:
+        feats = extract_ucipd_from_wav(wav_path)
+    except Exception as e:
+        # Re-raise to allow caller to log context
+        raise
     return vectorizer.transform(feats)
 
 
