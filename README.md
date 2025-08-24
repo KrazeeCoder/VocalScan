@@ -183,14 +183,52 @@ Both endpoints compute deterministic placeholder scores and persist metadata und
 
 ## Deployment
 
-- Production server example (Linux):
+- Vercel (Serverless Python):
 
-```bash
-pip install -r backend/requirements.txt
-gunicorn -w 2 -b 0.0.0.0:8080 backend.wsgi:app
-```
+  1) Ensure the repo contains:
+     - `api/index.py` exposing the Flask app:
 
-- Set `ALLOWED_ORIGINS` and `LOG_LEVEL` as needed (see `backend/app/__init__.py`).
+       ```python
+       from backend.app import create_app
+       app = create_app()
+       ```
+
+     - Root `requirements.txt` with:
+
+       ```
+       -r backend/requirements.txt
+       ```
+
+     - `vercel.json` routing all paths to the API function.
+
+  2) In Vercel → Project Settings → Build & Development Settings:
+     - Install Command: `pip install -r requirements.txt`
+     - Build Command: (leave empty)
+     - Output Directory: (leave empty)
+
+  3) In Vercel → Environment Variables (Production, Preview, Development):
+     - `LOG_LEVEL=INFO`
+     - `ALLOWED_ORIGINS=https://<your-vercel-domain>.vercel.app, http://localhost:3000`
+     - `FIREBASE_PROJECT_ID=<your-firebase-project-id>`
+     - `GOOGLE_CLOUD_PROJECT=<your-firebase-project-id>`
+     - `FIREBASE_STORAGE_BUCKET=<your-firebase-project-id>.appspot.com`
+     - One of:
+       - `GOOGLE_APPLICATION_CREDENTIALS=vocalscan-firebase-adminsdk-fbsvc-2e2615b477.json`
+       - or `FIREBASE_SERVICE_ACCOUNT_FILE=vocalscan-firebase-adminsdk-fbsvc-2e2615b477.json`
+     - Optional: `FFMPEG_PATH` if you provide a custom ffmpeg binary
+
+     Note: The app auto-detects a service account in the repo root named like `vocalscan-firebase-adminsdk-*.json`. Providing one of the above variables makes it explicit.
+
+  4) Deploy with Vercel (no run command required): Vercel will invoke `api/index.py:app` as a Python Serverless Function.
+
+- Bare-metal (Linux) example:
+
+  ```bash
+  pip install -r backend/requirements.txt
+  gunicorn -w 2 -b 0.0.0.0:8080 backend.wsgi:app
+  ```
+
+  Set `ALLOWED_ORIGINS` and `LOG_LEVEL` as needed (see `backend/app/__init__.py`).
 
 ## Disclaimer
 

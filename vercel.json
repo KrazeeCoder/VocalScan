@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "routes": [
+    { "src": "/(health)$", "dest": "/api/index.py" },
+    { "src": "/api/.*", "dest": "/api/index.py" },
+    { "src": "/infer", "dest": "/api/index.py" },
+    { "src": "/spiral/infer", "dest": "/api/index.py" },
+    { "src": "/therapy/infer", "dest": "/api/index.py" },
+    { "src": "/(dashboard|login|record|spiral|profile|demographics|treatments|therapy|assessment|logs|export|activity|ai-coach)$", "dest": "/api/index.py" },
+    { "src": "/.*", "dest": "/api/index.py" }
+  ]
+}
+
+
