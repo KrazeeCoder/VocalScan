@@ -160,6 +160,9 @@
     
     const el = document.getElementById('spiralResult');
     el.classList.remove('hidden');
+    // Prefer PD probability if available from backend; fallback to confidence
+    const pd = result?.scores?.pd;
+    const pct = typeof pd === 'number' ? Math.round(pd * 1000) / 10 : (result.confidence ? Math.round(result.confidence * 1000) / 10 : null);
     el.innerHTML = `
       <div class="space-y-4">
         <div class="p-4 bg-dark-800/50 rounded-xl">
@@ -169,9 +172,9 @@
               ${result.riskLevel === 'HIGH' ? 'Needs Attention' : result.riskLevel === 'MEDIUM' ? 'Fair' : 'Good'}
             </span>
           </div>
-          <div class="text-2xl font-bold text-white">${result.confidence ? (result.confidence * 100).toFixed(1) + '%' : 'N/A'}</div>
+          <div class="text-2xl font-bold text-white">${pct !== null ? pct.toFixed(1) + '%' : 'N/A'}</div>
           <div class="w-full bg-dark-700 rounded-full h-2 mt-2">
-            <div class="bg-gradient-to-r from-green-500 to-primary-500 h-2 rounded-full transition-all duration-500" style="width: ${result.confidence ? result.confidence * 100 : 75}%"></div>
+            <div class="bg-gradient-to-r from-green-500 to-primary-500 h-2 rounded-full transition-all duration-500" style="width: ${pct !== null ? pct : 75}%"></div>
           </div>
         </div>
         
@@ -180,7 +183,7 @@
           <div class="p-3 bg-dark-800/50 rounded-xl">
             <div class="flex justify-between items-center">
               <span class="text-dark-300 text-sm">Motor Control</span>
-              <span class="text-white font-bold">${result.scores.respiratory ? (result.scores.respiratory * 100).toFixed(1) + '%' : 'N/A'}</span>
+              <span class="text-white font-bold">${typeof result.scores.pd === 'number' ? (result.scores.pd * 100).toFixed(1) + '%' : (result.scores.respiratory ? (result.scores.respiratory * 100).toFixed(1) + '%' : 'N/A')}</span>
             </div>
           </div>
           <div class="p-3 bg-dark-800/50 rounded-xl">

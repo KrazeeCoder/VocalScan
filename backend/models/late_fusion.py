@@ -78,11 +78,18 @@ class LateFusionPredictor:
         spiral_oneclass_ckpt: Optional[str] = None,
         device: Optional[str] = None,
         fusion: Optional[WeightedFusion] = None,
+        temperature_speech: float = 1.0,
+        temperature_spiral: float = 1.5,
+        prob_eps: float = 1e-3,
     ):
         if device is None:
             device = "cuda" if torch.cuda.is_available() else "cpu"
         self.device = device
         self.fusion = fusion or WeightedFusion()
+        # Calibration params
+        self.temp_speech = float(max(1e-3, temperature_speech))
+        self.temp_spiral = float(max(1e-3, temperature_spiral))
+        self.prob_eps = float(max(0.0, prob_eps))
 
         self.speech_model: Optional[MultimodalPDModel] = None
         self.spiral_model: Optional[MultimodalPDModel] = None
@@ -125,13 +132,21 @@ class LateFusionPredictor:
         if self.speech_model is not None and speech_vec is not None:
             x = _to_tensor(speech_vec, self.device)
             logits = self.speech_model(None, x, None)
-            p = F.softmax(logits, dim=-1).cpu().numpy()
+            # Temperature-scaled softmax for desaturation
+            p = F.softmax(logits / self.temp_speech, dim=-1).cpu().numpy()
+            if self.prob_eps > 0:
+                p = np.clip(p, self.prob_eps, 1.0 - self.prob_eps)
+                p = p / p.sum(axis=1, keepdims=True)
             p_speech = p
 
         if self.spiral_model is not None and spiral_img is not None:
             x = _to_tensor(spiral_img, self.device)
             logits = self.spiral_model(None, None, x)
-            p = F.softmax(logits, dim=-1).cpu().numpy()
+            # Temperature-scaled softmax for desaturation
+            p = F.softmax(logits / self.temp_spiral, dim=-1).cpu().numpy()
+            if self.prob_eps > 0:
+                p = np.clip(p, self.prob_eps, 1.0 - self.prob_eps)
+                p = p / p.sum(axis=1, keepdims=True)
             p_spiral = p
 
         # One-class spiral probability (scalar p(PD)); convert to 2-class probs [p(control), p(PD)]

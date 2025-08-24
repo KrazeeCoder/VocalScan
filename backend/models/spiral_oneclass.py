@@ -209,8 +209,11 @@ class SpiralOneClassPredictor:
         self.model.eval()
         self.center = s["center"].to(device)
         self.mu = float(s.get("dist_mean", 0.0))
-        self.sigma = float(s.get("dist_std", 1.0)) + 1e-6
+        # Floor sigma to avoid overconfident outputs; clamp to reasonable range
+        self.sigma = max(0.05, float(s.get("dist_std", 1.0)))
         self.img_size = tuple(s.get("img_size", (224, 224)))
+        # Optional temperature for sigmoid mapping (slightly >1 to desaturate)
+        self.temp = float(max(0.5, min(2.5, s.get("prob_temperature", 1.3))))
 
     @torch.no_grad()
     def predict_proba(self, img: np.ndarray | torch.Tensor) -> float:
@@ -227,10 +230,9 @@ class SpiralOneClassPredictor:
         x = x.to(self.device)
         z = self.model(x)
         d = torch.sqrt(torch.sum((z - self.center) ** 2, dim=1))  # shape (1,)
-        # Map distance to probability: larger distance -> lower PD prob in one-class PD-trained setting
-        # Since we trained on PD-only, smaller distance => more PD-like
-        # p = sigmoid(-(d - mu)/sigma)
-        p = torch.sigmoid(-(d - self.mu) / self.sigma)
+        # Desaturated mapping: p = sigmoid(-(d - mu)/(sigma * temp))
+        denom = max(1e-6, self.sigma * self.temp)
+        p = torch.sigmoid(-(d - self.mu) / denom)
         return float(p.item())
 
 

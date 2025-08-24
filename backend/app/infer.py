@@ -572,7 +572,10 @@ def _ensure_models_loaded() -> None:
             speech_ckpt=speech_ckpt,
             spiral_ckpt=spiral_ckpt,
             spiral_oneclass_ckpt=spiral_oneclass_ckpt,
-            fusion=WeightedFusion(w_speech=0.5, w_spiral=0.4, w_demo=0.1),
+            fusion=WeightedFusion(w_speech=0.55, w_spiral=0.4, w_demo=0.05),
+            temperature_speech=1.7,
+            temperature_spiral=2.3,
+            prob_eps=0.01,
         )
         logger.info("_ensure_models_loaded: LateFusionPredictor initialized")
     if _VECTORIZER is None:
@@ -635,7 +638,8 @@ def _dataurl_to_bytes(data_url: str) -> Optional[bytes]:
 
 
 def _demographics_prior(user_doc: dict) -> Optional[np.ndarray]:
-    if not user_doc:
+    # Apply demographics prior only when the user completed the questionnaire
+    if not user_doc or not bool(user_doc.get("demographicsCompleted")):
         return None
     age = user_doc.get("age")
     gender = (user_doc.get("gender") or "").lower()
@@ -644,19 +648,21 @@ def _demographics_prior(user_doc: dict) -> Optional[np.ndarray]:
         age = float(age) if age is not None else None
     except Exception:
         age = None
-    p_pd = 0.4
+    # Conservative baseline; prevalence is low
+    p_pd = 0.10
     if age is not None:
         if age >= 65:
-            p_pd += 0.12
+            p_pd += 0.05
         elif age >= 50:
-            p_pd += 0.06
+            p_pd += 0.03
         elif age < 40:
-            p_pd -= 0.05
+            p_pd -= 0.03
     if gender in ("male", "m"):
-        p_pd += 0.02
+        p_pd += 0.01
     if isinstance(fam, (list, tuple)) and len(fam) > 0:
-        p_pd += 0.1
-    p_pd = float(max(0.05, min(0.95, p_pd)))
+        p_pd += 0.05
+    # Clamp so demo prior cannot dominate fusion
+    p_pd = float(max(0.01, min(0.35, p_pd)))
     return np.asarray([[1.0 - p_pd, p_pd]], dtype=np.float32)
 
 
@@ -845,7 +851,13 @@ def _ensure_models_loaded() -> None:
 
             spiral_oneclass_ckpt=spiral_oneclass_ckpt,
 
-            fusion=WeightedFusion(w_speech=0.5, w_spiral=0.4, w_demo=0.1),
+            fusion=WeightedFusion(w_speech=0.55, w_spiral=0.4, w_demo=0.05),
+
+            temperature_speech=1.7,
+
+            temperature_spiral=2.3,
+
+            prob_eps=0.01,
 
         )
 
@@ -933,7 +945,9 @@ def _dataurl_to_bytes(data_url: str) -> Optional[bytes]:
 
 def _demographics_prior(user_doc: dict) -> Optional[np.ndarray]:
 
-    if not user_doc:
+    # Apply demographics prior only when the user completed the questionnaire
+
+    if not user_doc or not bool(user_doc.get("demographicsCompleted")):
 
         return None
 
@@ -951,31 +965,35 @@ def _demographics_prior(user_doc: dict) -> Optional[np.ndarray]:
 
         age = None
 
-    p_pd = 0.4
+    # Conservative baseline; prevalence is low
+
+    p_pd = 0.10
 
     if age is not None:
 
         if age >= 65:
 
-            p_pd += 0.12
+            p_pd += 0.05
 
         elif age >= 50:
 
-            p_pd += 0.06
+            p_pd += 0.03
 
         elif age < 40:
 
-            p_pd -= 0.05
+            p_pd -= 0.03
 
     if gender in ("male", "m"):
 
-        p_pd += 0.02
+        p_pd += 0.01
 
     if isinstance(fam, (list, tuple)) and len(fam) > 0:
 
-        p_pd += 0.1
+        p_pd += 0.05
 
-    p_pd = float(max(0.05, min(0.95, p_pd)))
+    # Clamp so demo prior cannot dominate fusion
+
+    p_pd = float(max(0.01, min(0.35, p_pd)))
 
     return np.asarray([[1.0 - p_pd, p_pd]], dtype=np.float32)
 
