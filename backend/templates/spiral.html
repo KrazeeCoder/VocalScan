@@ -1,25 +1,669 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="grid lg:grid-cols-3 gap-6 mt-6">
-  <div class="lg:col-span-2 card p-6">
-    <h2 class="text-xl font-semibold mb-4">Spiral Drawing</h2>
-    <p class="text-sm text-gray-600 mb-3">Draw a spiral with your mouse or finger. Keep your hand steady and follow a natural spiral.</p>
-    <div class="flex items-center gap-3 mb-3">
-      <button id="clearBtn" class="btn">Clear</button>
-      <button id="submitSpiralBtn" class="btn">Save & Analyze</button>
-      <span id="spiralStatus" class="text-gray-600"></span>
+<!-- Page Header -->
+<div class="mb-8 animate-fade-in">
+  <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+    <div>
+      <h1 class="text-3xl font-bold text-white mb-2">Spiral Drawing Tests</h1>
+      <p class="text-dark-300">Assess motor function and tremor through static and dynamic spiral drawing patterns</p>
     </div>
-    <canvas id="spiralCanvas" width="1000" height="600" class="w-full border rounded bg-white touch-none"></canvas>
+    <div class="mt-4 lg:mt-0">
+      <a href="/dashboard" class="btn-secondary">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+        </svg>
+        View Dashboard
+      </a>
+    </div>
   </div>
+</div>
+
+<!-- Test Selection -->
+<div class="mb-8 animate-fade-in">
   <div class="card p-6">
-    <h3 class="font-semibold mb-3">Result</h3>
-    <div id="spiralResult" class="text-sm text-gray-700"></div>
+    <h2 class="text-xl font-bold text-white mb-4">Select Test Type</h2>
+    <div class="grid md:grid-cols-2 gap-6">
+      
+      <!-- Static Spiral Test -->
+      <div class="relative">
+        <input type="radio" id="staticTest" name="testType" value="static" class="sr-only peer" checked>
+        <label for="staticTest" class="block p-6 bg-dark-800/50 border-2 border-dark-600 rounded-xl cursor-pointer hover:border-primary-500 peer-checked:border-primary-500 peer-checked:bg-primary-500/10 transition-all duration-300">
+          <div class="flex items-center mb-4">
+            <div class="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center mr-3">
+              <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+            <h3 class="text-lg font-bold text-white">Static Spiral Test (SST)</h3>
+          </div>
+          <p class="text-dark-300 text-sm mb-3">
+            In the static spiral test, the patient is asked to trace a pre-drawn spiral pattern on paper or a digital tablet. 
+            The spiral remains visible and stationary throughout the test, so the patient can continuously follow the template.
+          </p>
+          <p class="text-primary-400 text-sm font-medium">
+            ✓ Evaluates tremor and motor performance<br>
+            ✓ Analyzes accuracy following fixed pattern<br>
+            ✓ Continuous visual guidance available
+          </p>
+        </label>
+      </div>
+
+      <!-- Dynamic Spiral Test -->
+      <div class="relative">
+        <input type="radio" id="dynamicTest" name="testType" value="dynamic" class="sr-only peer">
+        <label for="dynamicTest" class="block p-6 bg-dark-800/50 border-2 border-dark-600 rounded-xl cursor-pointer hover:border-primary-500 peer-checked:border-primary-500 peer-checked:bg-primary-500/10 transition-all duration-300">
+          <div class="flex items-center mb-4">
+            <div class="w-10 h-10 bg-orange-500/20 rounded-xl flex items-center justify-center mr-3">
+              <svg class="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+              </svg>
+            </div>
+            <h3 class="text-lg font-bold text-white">Dynamic Spiral Test (DST)</h3>
+          </div>
+          <p class="text-dark-300 text-sm mb-3">
+            In the dynamic spiral test, the spiral template appears and disappears, or "blinks," at certain time intervals. 
+            This requires the patient to memorize the pattern and continue drawing even when the template is not visible.
+          </p>
+          <p class="text-orange-400 text-sm font-medium">
+            ✓ More challenging variation<br>
+            ✓ Measures pause times and memory<br>
+            ✓ Assesses hand-eye coordination<br>
+            ✓ Tests drawing performance under difficulty
+          </p>
+        </label>
+      </div>
+    </div>
+    
+    <!-- Start Test Button -->
+    <div class="mt-6 text-center">
+      <button id="startTestBtn" class="btn-primary">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293H15M9 10V9a2 2 0 012-2h2a2 2 0 012 2v1M9 10v10a1 1 0 001 1h4a1 1 0 001-1V10M9 10H6m3 0V6l3 3 3-3v4"></path>
+        </svg>
+        Start Selected Test
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Main Content Grid -->
+<div id="testInterface" class="grid lg:grid-cols-3 gap-8 hidden">
+  <!-- Drawing Interface -->
+  <div class="lg:col-span-2 card p-8 animate-fade-in">
+    <!-- Drawing Header -->
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h2 id="testTitle" class="text-2xl font-bold text-white mb-1">Static Spiral Test</h2>
+        <p id="testDescription" class="text-dark-400">Trace the spiral pattern from center outward with smooth, continuous motion</p>
+      </div>
+      <div id="drawingStatus" class="flex items-center space-x-2">
+        <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+        <span class="text-green-400 text-sm font-medium">Ready to draw</span>
+      </div>
+    </div>
+    
+    <!-- Test Controls -->
+    <div class="flex items-center gap-4 mb-6">
+      <button id="clearBtn" class="btn-secondary">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+        </svg>
+        Clear Canvas
+      </button>
+      
+      <button id="toggleTemplateBtn" class="btn-secondary hidden">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+        </svg>
+        <span id="templateBtnText">Hide Template</span>
+      </button>
+      
+      <div id="dynamicControls" class="hidden flex items-center gap-3">
+        <label class="text-sm text-dark-300">Blink Interval:</label>
+        <select id="blinkInterval" class="px-3 py-1 bg-dark-700 border border-dark-600 text-white rounded-lg text-sm">
+          <option value="2000">2 seconds</option>
+          <option value="3000" selected>3 seconds</option>
+          <option value="4000">4 seconds</option>
+          <option value="5000">5 seconds</option>
+        </select>
+      </div>
+      
+      <button id="submitSpiralBtn" class="btn-primary disabled:opacity-50 disabled:cursor-not-allowed">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        Save & Analyze
+      </button>
+    </div>
+    
+    <!-- Status -->
+    <div class="mb-4">
+      <div class="flex items-center text-sm">
+        <div id="statusIndicator" class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+        <span id="spiralStatus" class="text-dark-400 text-sm">Test ready - begin drawing when you're ready</span>
+      </div>
+    </div>
+    
+    <!-- Drawing Canvas Container -->
+    <div class="relative bg-white rounded-xl shadow-lg overflow-hidden">
+      <!-- Spiral Template Image -->
+      <div id="spiralTemplate" class="absolute inset-0 z-10 pointer-events-none">
+        <img src="/static/spiral.png" alt="Spiral Template" class="w-full h-full object-contain opacity-30" id="templateImage">
+      </div>
+      
+      <!-- Drawing Canvas -->
+      <canvas id="spiralCanvas" width="1000" height="600" class="w-full relative z-20 cursor-crosshair touch-none" style="max-height: 500px; background: transparent;"></canvas>
+      
+      <!-- Dynamic Test Overlay -->
+      <div id="dynamicOverlay" class="absolute inset-0 bg-white/90 z-15 hidden flex items-center justify-center">
+        <div class="text-center">
+          <div class="animate-pulse">
+            <svg class="w-16 h-16 mx-auto mb-4 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707"></path>
+            </svg>
+          </div>
+          <p class="text-dark-600 font-medium">Continue drawing from memory...</p>
+          <p class="text-dark-500 text-sm mt-1">Template will reappear shortly</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Instructions Panel -->
+  <div class="space-y-6">
+    <!-- Drawing Instructions -->
+    <div class="card p-6 animate-fade-in">
+      <h3 class="text-lg font-semibold text-white mb-3">Drawing Instructions</h3>
+      <div class="grid md:grid-cols-3 gap-4">
+        <div class="text-center p-4 bg-dark-800/50 rounded-xl">
+          <div class="w-12 h-12 mx-auto mb-3 bg-primary-500/20 rounded-full flex items-center justify-center">
+            <span class="text-primary-400 font-bold">1</span>
+          </div>
+          <h4 class="font-medium text-white mb-2">Start at Center</h4>
+          <p class="text-dark-300 text-sm">Begin drawing from the center point marker</p>
+        </div>
+        <div class="text-center p-4 bg-dark-800/50 rounded-xl">
+          <div class="w-12 h-12 mx-auto mb-3 bg-primary-500/20 rounded-full flex items-center justify-center">
+            <span class="text-primary-400 font-bold">2</span>
+          </div>
+          <h4 class="font-medium text-white mb-2">Draw Outward</h4>
+          <p class="text-dark-300 text-sm">Move in a continuous spiral motion outward</p>
+        </div>
+        <div class="text-center p-4 bg-dark-800/50 rounded-xl">
+          <div class="w-12 h-12 mx-auto mb-3 bg-primary-500/20 rounded-full flex items-center justify-center">
+            <span class="text-primary-400 font-bold">3</span>
+          </div>
+          <h4 class="font-medium text-white mb-2">Keep Steady</h4>
+          <p class="text-dark-300 text-sm">Maintain consistent speed and pressure</p>
+        </div>
+      </div>
+    </div>
+    <!-- Drawing Settings -->
+    <div class="card p-6 animate-fade-in">
+      <h3 class="text-xl font-bold text-white mb-4">Drawing Settings</h3>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-dark-300 mb-2">Brush Size</label>
+          <div class="flex items-center space-x-3">
+            <span class="text-dark-500 text-sm">Fine</span>
+            <input type="range" class="flex-1" min="1" max="10" value="3" id="brushSize">
+            <span class="text-dark-500 text-sm">Thick</span>
+          </div>
+          <div class="mt-2 h-6 bg-dark-800 rounded-full p-1">
+            <div id="brushPreview" class="w-3 h-3 bg-primary-500 rounded-full transition-all duration-200"></div>
+          </div>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-dark-300 mb-2">Drawing Color</label>
+          <div class="flex space-x-2">
+            <button class="w-8 h-8 bg-blue-500 rounded-full border-2 border-transparent focus:border-white transition-all" data-color="#3b82f6"></button>
+            <button class="w-8 h-8 bg-red-500 rounded-full border-2 border-transparent focus:border-white transition-all" data-color="#ef4444"></button>
+            <button class="w-8 h-8 bg-green-500 rounded-full border-2 border-transparent focus:border-white transition-all" data-color="#10b981"></button>
+            <button class="w-8 h-8 bg-purple-500 rounded-full border-2 border-transparent focus:border-white transition-all" data-color="#8b5cf6"></button>
+            <button class="w-8 h-8 bg-gray-800 rounded-full border-2 border-white transition-all" data-color="#1f2937"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Analysis Results -->
+    <div class="card p-6 animate-fade-in">
+      <h3 class="text-xl font-bold text-white mb-4">Analysis Results</h3>
+      <div id="spiralResult" class="space-y-4">
+        <div class="text-center py-8 text-dark-400">
+          <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+          </svg>
+          <p class="text-sm">Draw a spiral and click "Save & Analyze" to see results</p>
+        </div>
+      </div>
+      
+      <!-- Loading State -->
+      <div id="spiralAnalysisLoading" class="hidden">
+        <div class="flex items-center justify-center py-8">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
+          <span class="ml-3 text-dark-300">Analyzing drawing...</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Motor Assessment Info -->
+    <div class="card p-6 animate-fade-in">
+      <h3 class="text-xl font-bold text-white mb-4">What We Analyze</h3>
+      <div class="space-y-3">
+        <div class="flex items-center">
+          <div class="w-8 h-8 bg-primary-500/20 rounded-lg flex items-center justify-center mr-3">
+            <svg class="w-4 h-4 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="text-white font-medium">Tremor Detection</p>
+            <p class="text-dark-400 text-sm">Hand shake patterns</p>
+          </div>
+        </div>
+        
+        <div class="flex items-center">
+          <div class="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center mr-3">
+            <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="text-white font-medium">Movement Speed</p>
+            <p class="text-dark-400 text-sm">Drawing velocity analysis</p>
+          </div>
+        </div>
+        
+        <div class="flex items-center">
+          <div class="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center mr-3">
+            <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="text-white font-medium">Spiral Smoothness</p>
+            <p class="text-dark-400 text-sm">Pattern consistency</p>
+          </div>
+        </div>
+        
+        <div class="flex items-center">
+          <div class="w-8 h-8 bg-orange-500/20 rounded-lg flex items-center justify-center mr-3">
+            <svg class="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="text-white font-medium">Pressure Variation</p>
+            <p class="text-dark-400 text-sm">Force control assessment</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script src="/static/js/spiral.js"></script>
+<script>
+// Enhanced spiral drawing interface with test type support
+document.addEventListener('DOMContentLoaded', function() {
+  // Elements
+  const canvas = document.getElementById('spiralCanvas');
+  const clearBtn = document.getElementById('clearBtn');
+  const submitBtn = document.getElementById('submitSpiralBtn');
+  const statusElement = document.getElementById('spiralStatus');
+  const statusIndicator = document.getElementById('statusIndicator');
+  const brushSizeSlider = document.getElementById('brushSize');
+  const brushPreview = document.getElementById('brushPreview');
+  const colorButtons = document.querySelectorAll('[data-color]');
+  
+  // New elements for test management
+  const startTestBtn = document.getElementById('startTestBtn');
+  const testInterface = document.getElementById('testInterface');
+  const staticTestRadio = document.getElementById('staticTest');
+  const dynamicTestRadio = document.getElementById('dynamicTest');
+  const testTitle = document.getElementById('testTitle');
+  const testDescription = document.getElementById('testDescription');
+  const toggleTemplateBtn = document.getElementById('toggleTemplateBtn');
+  const dynamicControls = document.getElementById('dynamicControls');
+  const blinkInterval = document.getElementById('blinkInterval');
+  const spiralTemplate = document.getElementById('spiralTemplate');
+  const templateImage = document.getElementById('templateImage');
+  const dynamicOverlay = document.getElementById('dynamicOverlay');
+  const templateBtnText = document.getElementById('templateBtnText');
+  
+  // Test state
+  let currentTestType = 'static';
+  let isTestActive = false;
+  let isDrawing = false;
+  let currentColor = '#1f2937';
+  let currentBrushSize = 3;
+  let dynamicTimer = null;
+  let templateVisible = true;
+  
+  // Initialize test selection
+  function initializeTestSelection() {
+    startTestBtn.addEventListener('click', startSelectedTest);
+    
+    // Update test type when radio changes
+    document.querySelectorAll('input[name="testType"]').forEach(radio => {
+      radio.addEventListener('change', function() {
+        currentTestType = this.value;
+        updateTestInterface();
+      });
+    });
+  }
+  
+  // Start selected test
+  function startSelectedTest() {
+    currentTestType = document.querySelector('input[name="testType"]:checked').value;
+    isTestActive = true;
+    
+    // Show test interface
+    testInterface.classList.remove('hidden');
+    testInterface.scrollIntoView({ behavior: 'smooth' });
+    
+    updateTestInterface();
+    setupTestSpecificControls();
+    
+    statusElement.textContent = `${currentTestType === 'static' ? 'Static' : 'Dynamic'} spiral test ready - begin drawing when you're ready`;
+  }
+  
+  // Update test interface based on selected test
+  function updateTestInterface() {
+    if (currentTestType === 'static') {
+      testTitle.textContent = 'Static Spiral Test (SST)';
+      testDescription.textContent = 'Trace the spiral pattern visible on screen with smooth, continuous motion';
+      toggleTemplateBtn.classList.remove('hidden');
+      dynamicControls.classList.add('hidden');
+      
+      // Show template for static test
+      spiralTemplate.style.display = 'block';
+      templateVisible = true;
+      updateTemplateButton();
+      
+    } else if (currentTestType === 'dynamic') {
+      testTitle.textContent = 'Dynamic Spiral Test (DST)';
+      testDescription.textContent = 'Draw from memory as the spiral template appears and disappears at intervals';
+      toggleTemplateBtn.classList.add('hidden');
+      dynamicControls.classList.remove('hidden');
+      
+      // Start dynamic blinking
+      startDynamicTest();
+    }
+  }
+  
+  // Setup test-specific controls
+  function setupTestSpecificControls() {
+    // Template toggle for static test
+    if (toggleTemplateBtn) {
+      toggleTemplateBtn.addEventListener('click', toggleTemplate);
+    }
+    
+    // Blink interval for dynamic test
+    if (blinkInterval) {
+      blinkInterval.addEventListener('change', function() {
+        if (currentTestType === 'dynamic' && isTestActive) {
+          startDynamicTest(); // Restart with new interval
+        }
+      });
+    }
+  }
+  
+  // Toggle template visibility (static test)
+  function toggleTemplate() {
+    templateVisible = !templateVisible;
+    spiralTemplate.style.display = templateVisible ? 'block' : 'none';
+    updateTemplateButton();
+  }
+  
+  // Update template button text
+  function updateTemplateButton() {
+    if (templateBtnText) {
+      templateBtnText.textContent = templateVisible ? 'Hide Template' : 'Show Template';
+    }
+  }
+  
+  // Start dynamic test with blinking template
+  function startDynamicTest() {
+    clearInterval(dynamicTimer);
+    
+    const interval = parseInt(blinkInterval.value) || 3000;
+    let showTemplate = true;
+    
+    // Initial state
+    spiralTemplate.style.display = 'block';
+    dynamicOverlay.classList.add('hidden');
+    
+    dynamicTimer = setInterval(() => {
+      showTemplate = !showTemplate;
+      
+      if (showTemplate) {
+        // Show template
+        spiralTemplate.style.display = 'block';
+        dynamicOverlay.classList.add('hidden');
+      } else {
+        // Hide template
+        spiralTemplate.style.display = 'none';
+        dynamicOverlay.classList.remove('hidden');
+      }
+    }, interval);
+  }
+  
+  // Stop dynamic test
+  function stopDynamicTest() {
+    if (dynamicTimer) {
+      clearInterval(dynamicTimer);
+      dynamicTimer = null;
+    }
+    spiralTemplate.style.display = 'block';
+    dynamicOverlay.classList.add('hidden');
+  }
+  
+  // Update brush preview
+  function updateBrushPreview() {
+    if (brushPreview) {
+      const size = Math.max(12, currentBrushSize * 3);
+      brushPreview.style.width = size + 'px';
+      brushPreview.style.height = size + 'px';
+    }
+  }
+  
+  // Brush size control
+  if (brushSizeSlider) {
+    brushSizeSlider.addEventListener('input', (e) => {
+      currentBrushSize = parseInt(e.target.value);
+      updateBrushPreview();
+      // Update canvas brush size if spiral.js supports it
+      if (window.spiralAPI && window.spiralAPI.setBrushSize) {
+        window.spiralAPI.setBrushSize(currentBrushSize);
+      }
+    });
+  }
+  
+  // Color selection
+  colorButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      // Remove border from all buttons
+      colorButtons.forEach(btn => btn.classList.remove('border-white'));
+      // Add border to selected button
+      button.classList.add('border-white');
+      
+      currentColor = button.dataset.color;
+      // Update canvas color if spiral.js supports it
+      if (window.spiralAPI && window.spiralAPI.setColor) {
+        window.spiralAPI.setColor(currentColor);
+      }
+    });
+  });
+  
+  // Set default color
+  if (colorButtons.length > 4) {
+    colorButtons[4].classList.add('border-white');
+  }
+  
+  // Drawing state management
+  function updateDrawingState(drawing) {
+    const status = document.getElementById('drawingStatus');
+    if (drawing) {
+      status.innerHTML = `
+        <div class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+        <span class="text-red-400 text-sm font-medium">Drawing...</span>
+      `;
+      if (statusIndicator) statusIndicator.className = 'w-2 h-2 bg-red-500 rounded-full animate-pulse';
+    } else {
+      status.innerHTML = `
+        <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+        <span class="text-green-400 text-sm font-medium">Ready to draw</span>
+      `;
+      if (statusIndicator) statusIndicator.className = 'w-2 h-2 bg-green-500 rounded-full';
+    }
+  }
+  
+  // Canvas event listeners
+  if (canvas) {
+    canvas.addEventListener('mousedown', () => {
+      isDrawing = true;
+      updateDrawingState(true);
+    });
+    
+    canvas.addEventListener('mouseup', () => {
+      if (isDrawing) {
+        isDrawing = false;
+        updateDrawingState(false);
+        if (statusElement) statusElement.textContent = 'Drawing completed - ready to analyze';
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+      }
+    });
+    
+    canvas.addEventListener('mouseleave', () => {
+      if (isDrawing) {
+        isDrawing = false;
+        updateDrawingState(false);
+      }
+    });
+  }
+  
+  // Clear button
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      if (statusElement) statusElement.textContent = 'Canvas cleared - draw a new spiral';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      }
+      updateDrawingState(false);
+    });
+  }
+  
+  // Submit button
+  if (submitBtn) {
+    submitBtn.addEventListener('click', () => {
+      showAnalysisLoading();
+      // Stop dynamic test if running
+      if (currentTestType === 'dynamic') {
+        stopDynamicTest();
+      }
+    });
+  }
+  
+  function showAnalysisLoading() {
+    document.getElementById('spiralAnalysisLoading').classList.remove('hidden');
+    document.getElementById('spiralResult').classList.add('hidden');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `
+        <svg class="w-4 h-4 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+        </svg>
+        Analyzing...
+      `;
+    }
+  }
+  
+  function hideAnalysisLoading() {
+    document.getElementById('spiralAnalysisLoading').classList.add('hidden');
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = `
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        Save & Analyze
+      `;
+    }
+  }
+  
+  function showSpiralResults(data) {
+    const resultDiv = document.getElementById('spiralResult');
+    if (resultDiv) {
+      resultDiv.classList.remove('hidden');
+      
+      // Enhanced result display with test type info
+      resultDiv.innerHTML = `
+        <div class="space-y-4">
+          <div class="p-4 bg-dark-800/50 rounded-xl">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-dark-300 text-sm">Test Type: ${currentTestType === 'static' ? 'Static (SST)' : 'Dynamic (DST)'}</span>
+              <span class="status-${data.score > 0.7 ? 'success' : data.score > 0.4 ? 'warning' : 'error'}">
+                ${data.score > 0.7 ? 'Good' : data.score > 0.4 ? 'Fair' : 'Needs Attention'}
+              </span>
+            </div>
+            <div class="text-2xl font-bold text-white">${(data.score * 100).toFixed(1)}%</div>
+            <div class="w-full bg-dark-700 rounded-full h-2 mt-2">
+              <div class="bg-gradient-to-r from-green-500 to-primary-500 h-2 rounded-full transition-all duration-500" style="width: ${data.score * 100}%"></div>
+            </div>
+          </div>
+          
+          ${data.tremor !== undefined ? `
+          <div class="grid grid-cols-1 gap-3">
+            <div class="p-3 bg-dark-800/50 rounded-xl">
+              <div class="flex justify-between items-center">
+                <span class="text-dark-300 text-sm">Tremor Level</span>
+                <span class="text-white font-bold">${data.tremor.toFixed(2)}</span>
+              </div>
+            </div>
+            <div class="p-3 bg-dark-800/50 rounded-xl">
+              <div class="flex justify-between items-center">
+                <span class="text-dark-300 text-sm">Smoothness</span>
+                <span class="text-white font-bold">${data.smoothness.toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+          ` : ''}
+          
+          <div class="p-3 bg-primary-500/10 border border-primary-500/30 rounded-xl">
+            <p class="text-primary-300 text-sm">
+              <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              ${currentTestType === 'static' ? 'Static spiral test' : 'Dynamic spiral test'} analysis complete. Results saved to your dashboard.
+            </p>
+          </div>
+        </div>
+      `;
+    }
+  }
+  
+  // Hook into existing spiral.js events if available
+  if (window.spiralAPI) {
+    window.spiralAPI.onAnalysisStart = showAnalysisLoading;
+    window.spiralAPI.onAnalysisComplete = hideAnalysisLoading;
+    window.spiralAPI.onResults = showSpiralResults;
+  }
+  
+  // Initialize everything
+  initializeTestSelection();
+  updateBrushPreview();
+});
+</script>
 {% endblock %}
 
 

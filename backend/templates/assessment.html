@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% block content %}
+<!-- Complete Assessment Flow -->
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <!-- Progress Bar -->
+  <div class="mb-12">
+    <div class="flex items-center justify-between mb-4">
+      <h1 class="text-3xl font-bold text-white">Complete Assessment</h1>
+      <span id="progressText" class="text-dark-300 font-medium">Step 1 of 3</span>
+    </div>
+    <div class="w-full bg-dark-800 rounded-full h-3 shadow-inner">
+      <div id="progressBar" class="bg-gradient-to-r from-primary-500 to-primary-600 h-3 rounded-full transition-all duration-500 ease-out" style="width: 33%"></div>
+    </div>
+  </div>
+
+  <!-- Step 1: Voice Assessment -->
+  <div id="step1" class="assessment-step">
+    <div class="card p-8 mb-8">
+      <div class="text-center mb-8">
+        <div class="w-20 h-20 mx-auto bg-gradient-to-br from-primary-500 to-primary-700 rounded-full flex items-center justify-center shadow-xl mb-6 animate-glow">
+          <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+          </svg>
+        </div>
+        <h2 class="text-3xl font-bold text-white mb-4">Voice Analysis Test</h2>
+        <p class="text-dark-300 text-lg leading-relaxed">
+          First, we'll analyze your voice patterns. Please read the following phrase clearly when prompted:
+        </p>
+      </div>
+
+      <!-- Phrase to read -->
+      <div class="bg-dark-800/50 border border-dark-600 rounded-xl p-6 mb-8">
+        <p class="text-center text-xl font-medium text-white leading-relaxed">
+          "The quick brown fox jumps over the lazy dog. Peter Piper picked a peck of pickled peppers."
+        </p>
+      </div>
+
+      <!-- Voice Recording Interface -->
+      <div class="text-center">
+        <div class="relative inline-block">
+          <button id="voiceStartBtn" class="btn-primary px-8 py-4 text-lg font-semibold">
+            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+            </svg>
+            Start Voice Recording
+          </button>
+          <button id="voiceStopBtn" class="btn-secondary px-8 py-4 text-lg font-semibold hidden">
+            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path>
+            </svg>
+            Stop Recording
+          </button>
+        </div>
+        
+        <!-- Recording Status -->
+        <div id="voiceStatus" class="mt-6 hidden">
+          <div class="flex items-center justify-center text-green-400 mb-4">
+            <svg class="w-5 h-5 mr-2 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
+              <circle cx="10" cy="10" r="3"></circle>
+            </svg>
+            Recording... Speak clearly
+          </div>
+          <div class="w-full bg-dark-800 rounded-full h-2">
+            <div id="voiceProgress" class="bg-green-500 h-2 rounded-full transition-all duration-200" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Voice Recording Complete -->
+        <div id="voiceComplete" class="mt-6 hidden">
+          <div class="flex items-center justify-center text-green-400 mb-4">
+            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            Voice recording completed successfully!
+          </div>
+          <button id="voiceNextBtn" class="btn-primary px-8 py-4 text-lg font-semibold">
+            Continue to Motor Test
+            <svg class="w-6 h-6 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2: Motor Assessment -->
+  <div id="step2" class="assessment-step hidden">
+    <div class="card p-8 mb-8">
+      <div class="text-center mb-8">
+        <div class="w-20 h-20 mx-auto bg-gradient-to-br from-purple-500 to-purple-700 rounded-full flex items-center justify-center shadow-xl mb-6 animate-glow">
+          <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+          </svg>
+        </div>
+        <h2 class="text-3xl font-bold text-white mb-4">Motor Function Test</h2>
+        <p class="text-dark-300 text-lg leading-relaxed">
+          Now we'll test your motor control by drawing a spiral. Follow the guide lines and draw smoothly from center outward.
+        </p>
+      </div>
+
+      <!-- Spiral Drawing Canvas -->
+      <div class="flex justify-center mb-8">
+        <div class="relative">
+          <canvas id="spiralCanvas" 
+                  width="500" 
+                  height="500" 
+                  class="border-2 border-primary-500/30 rounded-xl bg-white cursor-crosshair shadow-2xl">
+          </canvas>
+          <div id="spiralGuide" class="absolute inset-0 pointer-events-none rounded-xl"></div>
+        </div>
+      </div>
+
+      <!-- Drawing Controls -->
+      <div class="text-center">
+        <div class="flex justify-center gap-4 mb-6">
+          <button id="spiralClearBtn" class="btn-secondary px-6 py-3">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+            </svg>
+            Clear Drawing
+          </button>
+          <button id="spiralSubmitBtn" class="btn-primary px-6 py-3 opacity-50 cursor-not-allowed" disabled>
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            Submit Drawing
+          </button>
+        </div>
+
+        <!-- Spiral Drawing Complete -->
+        <div id="spiralComplete" class="mt-6 hidden">
+          <div class="flex items-center justify-center text-green-400 mb-4">
+            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            Motor test completed successfully!
+          </div>
+          <button id="spiralNextBtn" class="btn-primary px-8 py-4 text-lg font-semibold">
+            View Combined Results
+            <svg class="w-6 h-6 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3: Combined Results -->
+  <div id="step3" class="assessment-step hidden">
+    <div class="card p-8">
+      <div class="text-center mb-8">
+        <div class="w-20 h-20 mx-auto bg-gradient-to-br from-green-500 to-green-700 rounded-full flex items-center justify-center shadow-xl mb-6 animate-glow">
+          <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+          </svg>
+        </div>
+        <h2 class="text-3xl font-bold text-white mb-4">Assessment Complete!</h2>
+        <p class="text-dark-300 text-lg leading-relaxed">
+          Your comprehensive assessment has been analyzed. Here are your combined results:
+        </p>
+      </div>
+
+      <!-- Combined Results Display -->
+      <div id="combinedResults" class="space-y-6">
+        <!-- Loading State -->
+        <div id="resultsLoading" class="text-center py-12">
+          <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mb-4"></div>
+          <p class="text-dark-300">Analyzing your assessment data...</p>
+        </div>
+
+        <!-- Results will be populated by JavaScript -->
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="text-center mt-8">
+        <div class="flex justify-center gap-4">
+          <a href="/dashboard" class="btn-primary px-8 py-4 text-lg font-semibold">
+            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+            </svg>
+            View Dashboard
+          </a>
+          <button id="newAssessmentBtn" class="btn-secondary px-8 py-4 text-lg font-semibold">
+            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            New Assessment
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Include Assessment JavaScript -->
+<script src="{{ url_for('static', filename='js/assessment.js') }}"></script>
+{% endblock %}

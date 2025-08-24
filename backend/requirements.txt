@@ -3,6 +3,8 @@ flask-cors>=4.0,<5
 firebase-admin>=6.2,<7
 python-dotenv>=1.0,<2
 gunicorn>=21.2,<22
+reportlab>=4.0,<5
+google-cloud-storage>=2.18,<3
 
 torch>=2.2,<3
 torchvision>=0.17,<1

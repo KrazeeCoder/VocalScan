@@ -1,31 +1,130 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="max-w-6xl mx-auto">
-  <div class="mb-8">
-    <h1 class="text-3xl font-bold text-gray-900 mb-4">Parkinson's Disease Treatments</h1>
-    <p class="text-gray-600 text-lg">Comprehensive information about available treatments, their effectiveness, side effects, and usage statistics.</p>
+<!-- Page Header -->
+<div class="mb-8 animate-fade-in">
+  <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+    <div>
+      <h1 class="text-3xl font-bold text-white mb-2">Parkinson's Disease Treatments</h1>
+      <p class="text-dark-300">Comprehensive information about available treatments, their effectiveness, side effects, and usage statistics</p>
+    </div>
+    <div class="mt-4 lg:mt-0 flex gap-3">
+      <button id="filterBtn" class="btn-secondary">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z"></path>
+        </svg>
+        Filter
+      </button>
+      <a href="/dashboard" class="btn-secondary">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+        </svg>
+        Dashboard
+      </a>
+    </div>
   </div>
+</div>
 
+<!-- Search and Filter Bar -->
+<div class="mb-8 animate-fade-in">
+  <div class="card p-6">
+    <div class="flex flex-col md:flex-row gap-4">
+      <div class="flex-1">
+        <div class="relative">
+          <input type="text" id="searchInput" placeholder="Search treatments..." class="w-full pl-10 px-4 py-3 bg-dark-700 border border-dark-600 text-white placeholder-dark-400 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="w-5 h-5 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <select id="typeFilter" class="px-4 py-3 bg-dark-700 border border-dark-600 text-white rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200">
+          <option value="">All Types</option>
+          <option value="Medication">Medication</option>
+          <option value="Supplement">Supplement</option>
+          <option value="Therapy">Therapy</option>
+        </select>
+        <select id="effectivenessFilter" class="px-4 py-3 bg-dark-700 border border-dark-600 text-white rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200">
+          <option value="">All Effectiveness</option>
+          <option value="Highly effective">Highly Effective</option>
+          <option value="Moderately effective">Moderately Effective</option>
+          <option value="Slightly effective">Slightly Effective</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Treatment Statistics -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 animate-fade-in">
+  <div class="card p-6 text-center">
+    <div class="w-12 h-12 mx-auto mb-3 bg-primary-500/20 rounded-xl flex items-center justify-center">
+      <svg class="w-6 h-6 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+      </svg>
+    </div>
+    <div id="totalTreatments" class="text-2xl font-bold text-white mb-1">--</div>
+    <div class="text-dark-400 text-sm">Total Treatments</div>
+  </div>
+  
+  <div class="card p-6 text-center">
+    <div class="w-12 h-12 mx-auto mb-3 bg-green-500/20 rounded-xl flex items-center justify-center">
+      <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+    </div>
+    <div id="highlyEffective" class="text-2xl font-bold text-white mb-1">--</div>
+    <div class="text-dark-400 text-sm">Highly Effective</div>
+  </div>
+  
+  <div class="card p-6 text-center">
+    <div class="w-12 h-12 mx-auto mb-3 bg-orange-500/20 rounded-xl flex items-center justify-center">
+      <svg class="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+    </div>
+    <div id="totalUsers" class="text-2xl font-bold text-white mb-1">--</div>
+    <div class="text-dark-400 text-sm">Total Users</div>
+  </div>
+  
+  <div class="card p-6 text-center">
+    <div class="w-12 h-12 mx-auto mb-3 bg-purple-500/20 rounded-xl flex items-center justify-center">
+      <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+      </svg>
+    </div>
+    <div id="avgEffectiveness" class="text-2xl font-bold text-white mb-1">--</div>
+    <div class="text-dark-400 text-sm">Avg Effectiveness</div>
+  </div>
+</div>
+
+<!-- Treatments Grid -->
+<div class="animate-fade-in">
   <div class="grid gap-6" id="treatments-container">
-    <!-- Treatments will be loaded here dynamically -->
+    <!-- Loading State -->
+    <div class="flex items-center justify-center py-12">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
+      <span class="ml-3 text-dark-300">Loading treatments...</span>
+    </div>
   </div>
 </div>
 
 <!-- Treatment Modal -->
-<div id="treatment-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+<div id="treatment-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50">
   <div class="flex items-center justify-center min-h-screen p-4">
-    <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-      <div class="p-6">
-        <div class="flex justify-between items-center mb-4">
-          <h3 id="modal-title" class="text-xl font-semibold text-gray-900"></h3>
-          <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+    <div class="bg-dark-800 border border-dark-700 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-slide-up">
+      <div class="p-8">
+        <div class="flex justify-between items-center mb-6">
+          <h3 id="modal-title" class="text-2xl font-bold text-white"></h3>
+          <button onclick="closeModal()" class="p-2 text-dark-400 hover:text-white hover:bg-dark-700 rounded-lg transition-all duration-200">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
           </button>
         </div>
-        <div id="modal-content" class="space-y-4">
+        <div id="modal-content" class="space-y-6">
           <!-- Modal content will be populated here -->
         </div>
       </div>
@@ -43,118 +142,260 @@ async function loadTreatments() {
     const data = await response.json();
     window.treatmentsData = data; // Store globally for modal access
     displayTreatments(data.parkinsons_treatments);
+    updateStatistics(data.parkinsons_treatments);
+    setupFilters(data.parkinsons_treatments);
   } catch (error) {
     console.error('Error loading treatments:', error);
     document.getElementById('treatments-container').innerHTML = 
-      '<div class="text-center text-red-600">Error loading treatments data</div>';
+      '<div class="card p-8 text-center"><div class="text-red-400">Error loading treatments data</div></div>';
   }
+}
+
+function updateStatistics(treatments) {
+  const total = treatments.length;
+  const highlyEffective = treatments.filter(t => 
+    t.evaluations.perceived_effectiveness && t.evaluations.perceived_effectiveness.includes('Highly effective')
+  ).length;
+  
+  const totalUsersSum = treatments.reduce((sum, t) => {
+    return sum + (typeof t.how_many_have_tried === 'number' ? t.how_many_have_tried : 0);
+  }, 0);
+  
+  const effectiveCount = treatments.filter(t => 
+    t.evaluations.perceived_effectiveness && !t.evaluations.perceived_effectiveness.includes('N/A')
+  ).length;
+  
+  document.getElementById('totalTreatments').textContent = total;
+  document.getElementById('highlyEffective').textContent = highlyEffective;
+  document.getElementById('totalUsers').textContent = totalUsersSum > 0 ? formatNumber(totalUsersSum) : '--';
+  document.getElementById('avgEffectiveness').textContent = effectiveCount > 0 ? Math.round((effectiveCount/total) * 100) + '%' : '--';
+}
+
+function formatNumber(num) {
+  if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+  if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+  return num.toString();
 }
 
 function displayTreatments(treatments) {
   const container = document.getElementById('treatments-container');
   
-  const treatmentsHTML = treatments.map(treatment => `
-    <div class="card p-6 hover:shadow-lg transition-shadow cursor-pointer" onclick="showTreatmentDetails('${treatment.name.replace(/'/g, "\\'")}')">
-      <div class="flex justify-between items-start mb-4">
-        <div>
-          <h3 class="text-xl font-semibold text-gray-900 mb-2">${treatment.name}</h3>
-          <p class="text-indigo-600 font-medium">${treatment.brand_name || 'N/A'}</p>
+  if (!treatments || treatments.length === 0) {
+    container.innerHTML = '<div class="card p-8 text-center text-dark-400">No treatments found</div>';
+    return;
+  }
+  
+  const treatmentsHTML = treatments.map(treatment => {
+    const effectiveness = treatment.evaluations.perceived_effectiveness || 'N/A';
+    const effectivenessClass = getEffectivenessClass(effectiveness);
+    
+    return `
+      <div class="card card-hover p-6 cursor-pointer group" onclick="showTreatmentDetails('${treatment.name.replace(/'/g, "\\'")}')">
+        <div class="flex justify-between items-start mb-4">
+          <div class="flex-1">
+            <h3 class="text-xl font-bold text-white mb-2 group-hover:text-primary-400 transition-colors">${treatment.name}</h3>
+            <p class="text-primary-400 font-medium">${treatment.brand_name || 'Generic'}</p>
+          </div>
+          <div class="flex flex-col items-end gap-2">
+            <span class="px-3 py-1 bg-dark-700 text-dark-200 rounded-full text-sm border border-dark-600">
+              ${treatment.type || 'N/A'}
+            </span>
+            ${effectiveness !== 'N/A' ? `
+              <span class="status-${effectivenessClass} text-xs">
+                ${getEffectivenessLabel(effectiveness)}
+              </span>
+            ` : ''}
+          </div>
         </div>
-        <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
-          ${treatment.type || 'N/A'}
-        </span>
-      </div>
-      
-      <div class="space-y-3">
-        ${treatment.evaluations.perceived_effectiveness !== 'N/A' ? 
-          `<div class="flex items-center text-sm text-gray-600">
-            <svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-            </svg>
-            ${treatment.evaluations.perceived_effectiveness}
-          </div>` : ''
-        }
         
-        ${treatment.side_effects !== 'N/A' ? 
-          `<div class="text-sm text-gray-600">
-            <span class="font-medium text-red-600">Side Effects:</span> ${treatment.side_effects}
-          </div>` : ''
-        }
-        
-        ${treatment.how_many_have_tried !== 'N/A' ? 
-          `<div class="text-sm text-gray-600">
-            <span class="font-medium">Users:</span> ${treatment.how_many_have_tried.toLocaleString()}
-          </div>` : ''
-        }
+        <div class="space-y-3">
+          ${effectiveness !== 'N/A' ? 
+            `<div class="flex items-center text-sm text-dark-300">
+              <svg class="w-4 h-4 text-${effectivenessClass === 'success' ? 'green' : effectivenessClass === 'warning' ? 'yellow' : 'red'}-400 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+              </svg>
+              <span class="font-medium">Effectiveness:</span>
+              <span class="ml-2">${effectiveness}</span>
+            </div>` : ''
+          }
+          
+          ${treatment.side_effects !== 'N/A' && treatment.side_effects ? 
+            `<div class="text-sm text-dark-300">
+              <span class="font-medium text-red-400">Side Effects:</span> 
+              <span class="ml-1">${treatment.side_effects.length > 100 ? treatment.side_effects.substring(0, 100) + '...' : treatment.side_effects}</span>
+            </div>` : ''
+          }
+          
+          <div class="flex justify-between items-center pt-3 border-t border-dark-700/30">
+            ${treatment.how_many_have_tried !== 'N/A' && typeof treatment.how_many_have_tried === 'number' ? 
+              `<div class="text-sm text-dark-400">
+                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                </svg>
+                ${formatNumber(treatment.how_many_have_tried)} users
+              </div>` : ''
+            }
+            <div class="text-primary-400 text-sm font-medium group-hover:text-primary-300">
+              View Details →
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
   
   container.innerHTML = treatmentsHTML;
 }
 
+function getEffectivenessClass(effectiveness) {
+  if (effectiveness.includes('Highly effective')) return 'success';
+  if (effectiveness.includes('Moderately effective')) return 'warning';
+  if (effectiveness.includes('Slightly effective')) return 'error';
+  return 'warning';
+}
+
+function getEffectivenessLabel(effectiveness) {
+  if (effectiveness.includes('Highly effective')) return 'High';
+  if (effectiveness.includes('Moderately effective')) return 'Moderate';
+  if (effectiveness.includes('Slightly effective')) return 'Low';
+  return 'Unknown';
+}
+
+function setupFilters(treatments) {
+  const searchInput = document.getElementById('searchInput');
+  const typeFilter = document.getElementById('typeFilter');
+  const effectivenessFilter = document.getElementById('effectivenessFilter');
+  
+  let filteredTreatments = treatments;
+  
+  function applyFilters() {
+    const searchTerm = searchInput.value.toLowerCase();
+    const typeValue = typeFilter.value;
+    const effectivenessValue = effectivenessFilter.value;
+    
+    filteredTreatments = treatments.filter(treatment => {
+      const matchesSearch = !searchTerm || 
+        treatment.name.toLowerCase().includes(searchTerm) ||
+        (treatment.brand_name && treatment.brand_name.toLowerCase().includes(searchTerm));
+      
+      const matchesType = !typeValue || treatment.type === typeValue;
+      
+      const matchesEffectiveness = !effectivenessValue || 
+        (treatment.evaluations.perceived_effectiveness && 
+         treatment.evaluations.perceived_effectiveness.includes(effectivenessValue));
+      
+      return matchesSearch && matchesType && matchesEffectiveness;
+    });
+    
+    displayTreatments(filteredTreatments);
+    updateStatistics(filteredTreatments);
+  }
+  
+  searchInput.addEventListener('input', applyFilters);
+  typeFilter.addEventListener('change', applyFilters);
+  effectivenessFilter.addEventListener('change', applyFilters);
+}
+
 function showTreatmentDetails(treatmentName) {
-  // Find the treatment data
   const treatments = window.treatmentsData?.parkinsons_treatments || [];
   const treatment = treatments.find(t => t.name === treatmentName);
   
   if (!treatment) return;
   
-  // Populate modal
   document.getElementById('modal-title').textContent = treatment.name;
   
   const modalContent = document.getElementById('modal-content');
   modalContent.innerHTML = `
-    <div class="space-y-4">
-      <div class="border-b pb-4">
-        <h4 class="font-semibold text-gray-900 mb-2">Brand Name</h4>
-        <p class="text-gray-700">${treatment.brand_name || 'N/A'}</p>
-      </div>
-      
-      <div class="border-b pb-4">
-        <h4 class="font-semibold text-gray-900 mb-2">Type</h4>
-        <p class="text-gray-700">${treatment.type || 'N/A'}</p>
-      </div>
-      
-      ${treatment.evaluations.perceived_effectiveness !== 'N/A' ? `
-        <div class="border-b pb-4">
-          <h4 class="font-semibold text-gray-900 mb-2">Effectiveness</h4>
-          <p class="text-gray-700">${treatment.evaluations.perceived_effectiveness}</p>
-          <p class="text-sm text-gray-500">Based on ${treatment.evaluations.total_evaluations} evaluations</p>
+    <div class="space-y-6">
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="space-y-4">
+          <div class="p-4 bg-dark-800/50 rounded-xl">
+            <h4 class="font-semibold text-white mb-2">Brand Name</h4>
+            <p class="text-dark-300">${treatment.brand_name || 'Generic/No brand name'}</p>
+          </div>
+          
+          <div class="p-4 bg-dark-800/50 rounded-xl">
+            <h4 class="font-semibold text-white mb-2">Type</h4>
+            <span class="px-3 py-1 bg-primary-500/20 text-primary-300 rounded-full text-sm border border-primary-500/30">
+              ${treatment.type || 'N/A'}
+            </span>
+          </div>
         </div>
-      ` : ''}
+        
+        <div class="space-y-4">
+          ${treatment.evaluations.perceived_effectiveness !== 'N/A' ? `
+            <div class="p-4 bg-dark-800/50 rounded-xl">
+              <h4 class="font-semibold text-white mb-2">Effectiveness</h4>
+              <div class="space-y-2">
+                <span class="status-${getEffectivenessClass(treatment.evaluations.perceived_effectiveness)}">
+                  ${treatment.evaluations.perceived_effectiveness}
+                </span>
+                <p class="text-dark-400 text-sm">Based on ${treatment.evaluations.total_evaluations} evaluations</p>
+              </div>
+            </div>
+          ` : ''}
+          
+          ${treatment.how_many_have_tried !== 'N/A' && typeof treatment.how_many_have_tried === 'number' ? `
+            <div class="p-4 bg-dark-800/50 rounded-xl">
+              <h4 class="font-semibold text-white mb-2">Usage Statistics</h4>
+              <div class="text-2xl font-bold text-primary-400">${formatNumber(treatment.how_many_have_tried)}</div>
+              <p class="text-dark-400 text-sm">people have tried this treatment</p>
+            </div>
+          ` : ''}
+        </div>
+      </div>
       
-      ${treatment.side_effects !== 'N/A' ? `
-        <div class="border-b pb-4">
-          <h4 class="font-semibold text-gray-900 mb-2">Side Effects</h4>
-          <p class="text-gray-700">${treatment.side_effects}</p>
+      ${treatment.side_effects !== 'N/A' && treatment.side_effects ? `
+        <div class="p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
+          <h4 class="font-semibold text-red-300 mb-3 flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+            </svg>
+            Side Effects
+          </h4>
+          <p class="text-red-200">${treatment.side_effects}</p>
         </div>
       ` : ''}
       
       ${treatment.tried_for && treatment.tried_for[0] !== 'N/A' ? `
-        <div class="border-b pb-4">
-          <h4 class="font-semibold text-gray-900 mb-2">Common Uses</h4>
-          <ul class="list-disc list-inside text-gray-700 space-y-1">
-            ${treatment.tried_for.map(use => `<li>${use}</li>`).join('')}
-          </ul>
+        <div class="p-4 bg-dark-800/50 rounded-xl">
+          <h4 class="font-semibold text-white mb-3">Common Uses</h4>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+            ${treatment.tried_for.map(use => `
+              <div class="flex items-center text-dark-300">
+                <svg class="w-4 h-4 text-primary-400 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                ${use}
+              </div>
+            `).join('')}
+          </div>
         </div>
       ` : ''}
       
-      ${treatment.how_many_have_tried !== 'N/A' ? `
-        <div>
-          <h4 class="font-semibold text-gray-900 mb-2">Usage Statistics</h4>
-          <p class="text-gray-700">${treatment.how_many_have_tried.toLocaleString()} people have tried this treatment</p>
-        </div>
-      ` : ''}
+      <div class="flex gap-3">
+        <button onclick="closeModal()" class="btn-secondary flex-1">Close</button>
+        <button class="btn-primary flex-1" onclick="saveTreatment('${treatment.name.replace(/'/g, "\\'")}')">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+          </svg>
+          Save to Profile
+        </button>
+      </div>
     </div>
   `;
   
-  // Show modal
   document.getElementById('treatment-modal').classList.remove('hidden');
 }
 
 function closeModal() {
   document.getElementById('treatment-modal').classList.add('hidden');
+}
+
+function saveTreatment(treatmentName) {
+  // Implement save functionality
+  console.log('Saving treatment:', treatmentName);
+  closeModal();
 }
 
 // Close modal when clicking outside

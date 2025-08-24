@@ -27,6 +27,7 @@
                 location.href = '/demographics';
                 return;
               }
+              // Allow welcome flow to handle dashboard vs main app routing
             } else {
               // If we can't check status, redirect to demographics to be safe
               location.href = '/demographics';

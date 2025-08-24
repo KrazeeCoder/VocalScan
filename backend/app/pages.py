@@ -4,6 +4,11 @@ from flask import Blueprint, render_template
 pages_bp = Blueprint("pages", __name__)
 
 
+@pages_bp.get("/")
+def home():
+    return render_template("home.html")
+
+
 @pages_bp.get("/login")
 def login():
     return render_template("login.html")
@@ -37,5 +42,28 @@ def demographics():
 @pages_bp.get("/treatments")
 def treatments():
     return render_template("treatments.html")
+
+
+@pages_bp.get("/assessment")
+def complete_assessment():
+    return render_template("assessment.html")
+
+
+@pages_bp.get("/logs")
+def logs():
+    return render_template("logs.html")
+
+
+## Removed timeline and insights routes per update
+
+
+@pages_bp.get("/export")
+def export():
+    return render_template("export.html")
+
+
+@pages_bp.get("/activity")
+def activity():
+    return render_template("activity.html")
 
 
