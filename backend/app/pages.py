@@ -67,3 +67,8 @@ def activity():
     return render_template("activity.html")
 
 
+@pages_bp.get("/ai-coach")
+def ai_coach():
+    return render_template("ai-coach.html")
+
+
