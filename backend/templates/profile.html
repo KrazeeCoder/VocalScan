@@ -3,6 +3,43 @@
 <div class="mx-auto max-w-2xl mt-8 rounded-xl border border-gray-200 bg-white shadow-sm p-6">
   <h2 class="text-xl font-semibold mb-4">Profile</h2>
   <div id="profileInfo" class="text-sm text-gray-700"></div>
+
+  <div class="mt-8">
+    <h3 class="font-semibold mb-3">Demographics</h3>
+    <form id="demoForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="text-sm text-gray-600">First Name</label>
+        <input id="firstName" class="input" type="text" />
+      </div>
+      <div>
+        <label class="text-sm text-gray-600">Last Name</label>
+        <input id="lastName" class="input" type="text" />
+      </div>
+      <div>
+        <label class="text-sm text-gray-600">Age</label>
+        <input id="age" class="input" type="number" min="0" />
+      </div>
+      <div>
+        <label class="text-sm text-gray-600">Sex</label>
+        <select id="sex" class="input">
+          <option value="">Select</option>
+          <option>Female</option>
+          <option>Male</option>
+          <option>Non-binary</option>
+          <option>Prefer not to say</option>
+        </select>
+      </div>
+      <div class="md:col-span-2">
+        <label class="text-sm text-gray-600">Notes (e.g., PD diagnosis stage, meds)</label>
+        <textarea id="notes" class="input" rows="3"></textarea>
+      </div>
+      <div class="md:col-span-2 flex gap-3">
+        <button class="btn" id="saveDemoBtn" type="submit">Save</button>
+        <span id="demoStatus" class="text-gray-600"></span>
+      </div>
+    </form>
+  </div>
+
   <div class="mt-6 flex gap-3">
     <button id="logoutBtn" class="inline-flex items-center px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700">Sign out</button>
     <button id="deleteBtn" class="inline-flex items-center px-4 py-2 rounded-md border border-indigo-600 text-indigo-700 hover:bg-indigo-50">Delete Account</button>
@@ -12,11 +49,41 @@
 
 {% block scripts %}
 <script>
-  const { auth } = window.vsFirebase;
-  auth.onAuthStateChanged((user) => {
+  const { auth, db } = window.vsFirebase;
+  auth.onAuthStateChanged(async (user) => {
     if (!user) { location.href = '/login'; return; }
     const el = document.getElementById('profileInfo');
     el.innerHTML = `Signed in as <b>${user.displayName || user.email}</b><br/>UID: ${user.uid}`;
+
+    // Load demographics
+    const doc = await db.collection('users').doc(user.uid).get();
+    const d = doc.data() || {};
+    document.getElementById('firstName').value = d.firstName || '';
+    document.getElementById('lastName').value = d.lastName || '';
+    document.getElementById('age').value = d.age || '';
+    document.getElementById('sex').value = d.sex || '';
+    document.getElementById('notes').value = d.notes || '';
+  });
+
+  document.getElementById('demoForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const user = auth.currentUser; if (!user) return;
+    const data = {
+      firstName: document.getElementById('firstName').value.trim(),
+      lastName: document.getElementById('lastName').value.trim(),
+      age: Number(document.getElementById('age').value) || null,
+      sex: document.getElementById('sex').value,
+      notes: document.getElementById('notes').value.trim(),
+      updatedAt: new Date(),
+    };
+    const status = document.getElementById('demoStatus');
+    status.textContent = 'Saving...';
+    try {
+      await db.collection('users').doc(user.uid).set(data, { merge: true });
+      status.textContent = 'Saved.';
+    } catch (e) {
+      status.textContent = e.message || 'Failed to save';
+    }
   });
   document.getElementById('logoutBtn').onclick = () => auth.signOut().then(()=>location.href='/login');
   document.getElementById('deleteBtn').onclick = async () => {

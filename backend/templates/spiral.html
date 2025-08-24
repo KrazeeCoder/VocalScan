@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="grid lg:grid-cols-3 gap-6 mt-6">
+  <div class="lg:col-span-2 card p-6">
+    <h2 class="text-xl font-semibold mb-4">Spiral Drawing</h2>
+    <p class="text-sm text-gray-600 mb-3">Draw a spiral with your mouse or finger. Keep your hand steady and follow a natural spiral.</p>
+    <div class="flex items-center gap-3 mb-3">
+      <button id="clearBtn" class="btn">Clear</button>
+      <button id="submitSpiralBtn" class="btn">Save & Analyze</button>
+      <span id="spiralStatus" class="text-gray-600"></span>
+    </div>
+    <canvas id="spiralCanvas" width="1000" height="600" class="w-full border rounded bg-white touch-none"></canvas>
+  </div>
+  <div class="card p-6">
+    <h3 class="font-semibold mb-3">Result</h3>
+    <div id="spiralResult" class="text-sm text-gray-700"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/spiral.js"></script>
+{% endblock %}
+
+

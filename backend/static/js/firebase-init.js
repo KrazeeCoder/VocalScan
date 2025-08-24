@@ -14,10 +14,14 @@
   const db = firebase.firestore();
   const storage = firebase.storage();
 
-  // Ensure correct bucket root (Firebase config may omit legacy appspot bucket)
-  const defaultBucketUrl = `gs://vocalscan.appspot.com`;
-  const storageRootRef = storage.refFromURL(defaultBucketUrl);
+  // Use the default bucket from config as-is (supports firebasestorage.app buckets)
+  const app = firebase.app();
+  const options = app.options || {};
+  const bucket = options.storageBucket;
+  const storageRootRef = storage.ref();
+  console.log('[VocalScan] Using storage bucket:', bucket || '(default)');
 
+  // Expose handles
   window.vsFirebase = { auth, db, storage, storageRootRef };
 })();
 

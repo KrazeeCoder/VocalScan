@@ -74,10 +74,22 @@
     const recordId = new Date().toISOString().replace(/[:.]/g,'-').replace('T','_').slice(0,19);
     const blob = new Blob(chunks, { type: 'audio/webm' });
 
-    // Upload to Firebase Storage
+    // Upload to Firebase Storage with progress + correct bucket root
     const storagePath = `audio/${user.uid}/rec_${recordId}.webm`;
-    const ref = (window.vsFirebase.storageRootRef || storage.ref()).child(storagePath);
-    await ref.put(blob, { contentType: 'audio/webm' });
+    const root = window.vsFirebase.storageRootRef || storage.ref();
+    const ref = root.child(storagePath);
+    await new Promise((resolve, reject) => {
+      const task = ref.put(blob, { contentType: 'audio/webm' });
+      task.on('state_changed',
+        (snap) => {
+          const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
+          document.getElementById('submitBtn').textContent = `Uploading ${pct}%...`;
+        },
+        (err) => { console.error('Audio upload error:', err); reject(err); },
+        () => resolve()
+      );
+    });
+    document.getElementById('submitBtn').textContent = 'Upload & Analyze';
 
     // Call backend /infer with ID token
     const token = await user.getIdToken();

@@ -39,7 +39,15 @@ def _compute_placeholder_scores(audio_bytes: bytes) -> Tuple[dict, float, str]:
 
 @infer_bp.post("/infer")
 def infer():
-    """Infer endpoint: verifies Firebase ID token, computes placeholder scores, writes Firestore record."""
+    """Infer endpoint: verifies Firebase ID token, computes placeholder scores, writes Firestore record.
+
+    Firestore schema:
+      users/{uid}
+        - lastRecordingAt
+        - voiceRecordingPaths: array<string>
+        voiceRecordings/{recordId}
+          - storagePath, createdAt, durationSec, sampleRate, scores, confidence, riskLevel, modelVersion
+    """
     try:
         uid, _claims = verify_firebase_id_token(request)
     except AuthError as exc:
@@ -73,10 +81,25 @@ def infer():
     # Placeholder model inference
     scores, confidence, risk_level = _compute_placeholder_scores(audio_bytes)
 
-    # Persist to Firestore
+    # Persist to Firestore in the new schema under users/{uid}
     db = firestore.client()
-    doc_ref = db.collection("tests").document(uid).collection("records").document(record_id)
-    doc_ref.set(
+
+    # Ensure user doc exists and update aggregates
+    user_ref = db.collection("users").document(uid)
+    user_ref.set(
+        {
+            "createdAt": firestore.SERVER_TIMESTAMP,
+            "lastRecordingAt": firestore.SERVER_TIMESTAMP,
+            # Keep an easy-to-access array of storage filepaths
+            "voiceRecordingPaths": firestore.ArrayUnion([storage_path]),
+            "updatedAt": firestore.SERVER_TIMESTAMP,
+        },
+        merge=True,
+    )
+
+    # Write detailed per-record doc
+    rec_ref = user_ref.collection("voiceRecordings").document(record_id)
+    rec_ref.set(
         {
             "createdAt": firestore.SERVER_TIMESTAMP,
             "storagePath": storage_path,
@@ -87,6 +110,7 @@ def infer():
             "confidence": confidence,
             "riskLevel": risk_level,
             "timestamp": datetime.now(timezone.utc).isoformat(),
+            "status": "analyzed",
         },
         merge=True,
     )
@@ -95,6 +119,79 @@ def infer():
         jsonify(
             {
                 "recordId": record_id,
+                "modelVersion": "placeholder-v1",
+                "scores": scores,
+                "confidence": confidence,
+                "riskLevel": risk_level,
+                "storagePath": storage_path,
+            }
+        ),
+        200,
+    )
+
+
+@infer_bp.post("/spiral/infer")
+def spiral_infer():
+    """Accepts a spiral drawing image, computes placeholder scores, and writes Firestore record.
+
+    Expected multipart/form-data keys:
+      - file: image/png or image/jpeg
+      - drawingId: optional client-generated id
+
+    Firestore schema under users/{uid}:
+      spiralDrawings/{drawingId}
+        - storagePath, createdAt, scores, confidence, riskLevel, modelVersion
+      Also updates users/{uid}.spiralDrawingPaths array.
+    """
+    try:
+        uid, _claims = verify_firebase_id_token(request)
+    except AuthError as exc:
+        return jsonify({"error": str(exc)}), 401
+
+    if "file" not in request.files:
+        return jsonify({"error": "missing file"}), 400
+
+    file_storage = request.files["file"]
+    image_bytes = file_storage.read() or b""
+    drawing_id_client = (request.form.get("drawingId") or "").strip()
+
+    # Reuse placeholder scoring based on content
+    scores, confidence, risk_level = _compute_placeholder_scores(image_bytes)
+
+    # Create or use provided drawing id
+    drawing_id = drawing_id_client or time.strftime("spiral_%Y%m%d_%H%M%S")
+    storage_path = f"spirals/{uid}/{drawing_id}.png"
+
+    db = firestore.client()
+    user_ref = db.collection("users").document(uid)
+    user_ref.set(
+        {
+            "updatedAt": firestore.SERVER_TIMESTAMP,
+            "lastSpiralAt": firestore.SERVER_TIMESTAMP,
+            "spiralDrawingPaths": firestore.ArrayUnion([storage_path]),
+        },
+        merge=True,
+    )
+
+    spiral_ref = user_ref.collection("spiralDrawings").document(drawing_id)
+    spiral_ref.set(
+        {
+            "createdAt": firestore.SERVER_TIMESTAMP,
+            "storagePath": storage_path,
+            "modelVersion": "placeholder-v1",
+            "scores": scores,
+            "confidence": confidence,
+            "riskLevel": risk_level,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "status": "analyzed",
+        },
+        merge=True,
+    )
+
+    return (
+        jsonify(
+            {
+                "drawingId": drawing_id,
                 "modelVersion": "placeholder-v1",
                 "scores": scores,
                 "confidence": confidence,

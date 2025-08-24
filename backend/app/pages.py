@@ -24,3 +24,8 @@ def profile():
     return render_template("profile.html")
 
 
+@pages_bp.get("/spiral")
+def spiral():
+    return render_template("spiral.html")
+
+
