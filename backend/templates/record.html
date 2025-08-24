@@ -1,24 +1,199 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="grid lg:grid-cols-3 gap-6 mt-6">
-  <div class="lg:col-span-2 rounded-xl border border-gray-200 bg-white shadow-sm p-6">
-    <h2 class="text-xl font-semibold mb-4">Record</h2>
-    <div class="flex items-center gap-3 mb-4">
-      <button id="startBtn" class="btn">Start</button>
-      <button id="stopBtn" class="btn" disabled>Stop</button>
-      <span id="timer" class="text-gray-600">00:00</span>
+<!-- Page Header -->
+<div class="mb-8 animate-fade-in">
+  <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+    <div>
+      <h1 class="text-3xl font-bold text-white mb-2">Voice Assessment</h1>
+      <p class="text-dark-300">Record your voice to analyze speech patterns and detect potential Parkinson's indicators</p>
     </div>
-    <canvas id="wave" width="1000" height="160" class="w-full border rounded"></canvas>
+    <div class="mt-4 lg:mt-0">
+      <a href="/dashboard" class="btn-secondary">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+        </svg>
+        View Dashboard
+      </a>
+    </div>
   </div>
-  <div class="rounded-xl border border-gray-200 bg-white shadow-sm p-6">
-    <h3 class="font-semibold mb-3">Submit</h3>
-    <div class="space-y-3">
+</div>
+
+<!-- Main Content Grid -->
+<div class="grid lg:grid-cols-3 gap-8">
+  <!-- Recording Interface -->
+  <div class="lg:col-span-2 card p-8 animate-fade-in">
+    <!-- Recording Header -->
+    <div class="flex items-center justify-between mb-6">
       <div>
-        <label class="text-sm text-gray-600">Sample Rate</label>
-        <input id="sampleRate" class="input" type="number" value="48000" />
+        <h2 class="text-2xl font-bold text-white mb-1">Voice Recording</h2>
+        <p class="text-dark-400">Click start to begin recording your voice sample</p>
       </div>
-      <button id="submitBtn" class="inline-flex items-center px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 w-full" disabled>Upload & Analyze</button>
-      <div id="result" class="text-sm text-gray-700"></div>
+      <div id="recordingStatus" class="status-warning hidden">
+        <svg class="w-4 h-4 inline mr-1 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
+          <circle cx="10" cy="10" r="6"></circle>
+        </svg>
+        Recording...
+      </div>
+    </div>
+    
+    <!-- Recording Controls -->
+    <div class="flex items-center justify-center gap-6 mb-8">
+      <button id="startBtn" class="group relative">
+        <div class="w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-700 rounded-full flex items-center justify-center shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 group-hover:animate-glow">
+          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="start-recording">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+          </svg>
+        </div>
+        <span class="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-dark-400 text-sm font-medium">Start</span>
+      </button>
+      
+      <button id="stopBtn" class="group relative" disabled>
+        <div class="w-20 h-20 bg-gradient-to-br from-red-500 to-red-700 rounded-full flex items-center justify-center shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10h6v4H9z"></path>
+          </svg>
+        </div>
+        <span class="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-dark-400 text-sm font-medium">Stop</span>
+      </button>
+      
+      <!-- Timer -->
+      <div class="flex flex-col items-center">
+        <div class="w-16 h-16 bg-dark-800 rounded-full flex items-center justify-center border border-dark-600">
+          <span id="timer" class="text-2xl font-mono font-bold text-white">00:00</span>
+        </div>
+        <span class="text-dark-400 text-sm font-medium mt-2">Duration</span>
+      </div>
+    </div>
+    
+    <!-- Waveform Visualization -->
+    <div class="mb-6">
+      <div class="bg-dark-900/50 rounded-xl p-4 border border-dark-700/50">
+        <canvas id="wave" width="1000" height="160" class="w-full rounded-lg"></canvas>
+      </div>
+    </div>
+    
+    <!-- Recording Instructions -->
+    <div class="bg-dark-800/30 rounded-xl p-6 border border-dark-700/30">
+      <h3 class="text-lg font-semibold text-white mb-3">Recording Instructions</h3>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="space-y-2">
+          <div class="flex items-center text-dark-300">
+            <svg class="w-5 h-5 text-primary-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            Speak clearly and naturally
+          </div>
+          <div class="flex items-center text-dark-300">
+            <svg class="w-5 h-5 text-primary-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            Maintain consistent volume
+          </div>
+        </div>
+        <div class="space-y-2">
+          <div class="flex items-center text-dark-300">
+            <svg class="w-5 h-5 text-primary-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            Record for 10-30 seconds
+          </div>
+          <div class="flex items-center text-dark-300">
+            <svg class="w-5 h-5 text-primary-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            Find a quiet environment
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Analysis Panel -->
+  <div class="space-y-6">
+    <!-- Recording Settings -->
+    <div class="card p-6 animate-fade-in">
+      <h3 class="text-xl font-bold text-white mb-4">Recording Settings</h3>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-dark-300 mb-2">Sample Rate</label>
+          <div class="relative">
+            <input id="sampleRate" class="input w-full" type="number" value="48000" />
+            <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+              <span class="text-dark-400 text-sm">Hz</span>
+            </div>
+          </div>
+          <p class="text-xs text-dark-500 mt-1">Higher rates provide better quality</p>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-dark-300 mb-2">Audio Quality</label>
+          <div class="flex items-center space-x-2 text-sm">
+            <span class="text-dark-500">Low</span>
+            <div class="flex-1 bg-dark-700 rounded-full h-2">
+              <div class="bg-gradient-to-r from-primary-500 to-primary-600 h-2 rounded-full" style="width: 80%"></div>
+            </div>
+            <span class="text-primary-400">High</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Submit Section -->
+    <div class="card p-6 animate-fade-in">
+      <h3 class="text-xl font-bold text-white mb-4">Analysis</h3>
+      <div class="space-y-4">
+        <button id="submitBtn" class="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+          </svg>
+          Upload & Analyze
+        </button>
+        
+        <!-- Analysis Result -->
+        <div id="result" class="space-y-3 hidden">
+          <!-- Results will be populated here -->
+        </div>
+        
+        <!-- Loading State -->
+        <div id="analysisLoading" class="hidden">
+          <div class="flex items-center justify-center py-8">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
+            <span class="ml-3 text-dark-300">Analyzing voice pattern...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Tips & Info -->
+    <div class="card p-6 animate-fade-in">
+      <h3 class="text-xl font-bold text-white mb-4">Tips for Better Results</h3>
+      <div class="space-y-3">
+        <div class="flex items-start">
+          <div class="w-6 h-6 bg-primary-500/20 rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
+            <span class="text-primary-400 text-xs font-bold">1</span>
+          </div>
+          <p class="text-dark-300 text-sm">Use a quiet room with minimal background noise</p>
+        </div>
+        <div class="flex items-start">
+          <div class="w-6 h-6 bg-primary-500/20 rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
+            <span class="text-primary-400 text-xs font-bold">2</span>
+          </div>
+          <p class="text-dark-300 text-sm">Position microphone 6-8 inches from your mouth</p>
+        </div>
+        <div class="flex items-start">
+          <div class="w-6 h-6 bg-primary-500/20 rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
+            <span class="text-primary-400 text-xs font-bold">3</span>
+          </div>
+          <p class="text-dark-300 text-sm">Speak at your natural pace and volume</p>
+        </div>
+        <div class="flex items-start">
+          <div class="w-6 h-6 bg-primary-500/20 rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
+            <span class="text-primary-400 text-xs font-bold">4</span>
+          </div>
+          <p class="text-dark-300 text-sm">Read a short paragraph or count numbers</p>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -26,6 +201,108 @@
 
 {% block scripts %}
 <script src="/static/js/record.js"></script>
+<script>
+// Enhanced recording interface
+document.addEventListener('DOMContentLoaded', function() {
+  const startBtn = document.getElementById('startBtn');
+  const stopBtn = document.getElementById('stopBtn');
+  const submitBtn = document.getElementById('submitBtn');
+  const timer = document.getElementById('timer');
+  const recordingStatus = document.getElementById('recordingStatus');
+  
+  // Enhanced UI feedback
+  function updateRecordingState(isRecording) {
+    if (isRecording) {
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+      startBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      stopBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      recordingStatus.classList.remove('hidden');
+      recordingStatus.classList.add('status-error');
+    } else {
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+      startBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      stopBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      recordingStatus.classList.add('hidden');
+    }
+  }
+  
+  function showAnalysisLoading() {
+    document.getElementById('analysisLoading').classList.remove('hidden');
+    document.getElementById('result').classList.add('hidden');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `
+      <svg class="w-5 h-5 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+      </svg>
+      Analyzing...
+    `;
+  }
+  
+  function hideAnalysisLoading() {
+    document.getElementById('analysisLoading').classList.add('hidden');
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = `
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+      </svg>
+      Upload & Analyze
+    `;
+  }
+  
+  function showResults(data) {
+    const resultDiv = document.getElementById('result');
+    resultDiv.classList.remove('hidden');
+    
+    // Create enhanced result display
+    resultDiv.innerHTML = `
+      <div class="space-y-4">
+        <div class="p-4 bg-dark-800/50 rounded-xl">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-dark-300 text-sm">Risk Assessment</span>
+            <span class="status-${data.risk > 0.7 ? 'error' : data.risk > 0.4 ? 'warning' : 'success'}">
+              ${data.risk > 0.7 ? 'High Risk' : data.risk > 0.4 ? 'Moderate Risk' : 'Low Risk'}
+            </span>
+          </div>
+          <div class="text-2xl font-bold text-white">${(data.risk * 100).toFixed(1)}%</div>
+        </div>
+        
+        <div class="p-4 bg-dark-800/50 rounded-xl">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-dark-300 text-sm">Confidence Level</span>
+          </div>
+          <div class="text-2xl font-bold text-white">${(data.confidence * 100).toFixed(1)}%</div>
+          <div class="w-full bg-dark-700 rounded-full h-2 mt-2">
+            <div class="bg-gradient-to-r from-primary-500 to-primary-600 h-2 rounded-full transition-all duration-500" style="width: ${data.confidence * 100}%"></div>
+          </div>
+        </div>
+        
+        ${data.respiratory !== undefined ? `
+        <div class="grid grid-cols-2 gap-3">
+          <div class="p-3 bg-dark-800/50 rounded-xl text-center">
+            <div class="text-lg font-bold text-white">${data.respiratory.toFixed(2)}</div>
+            <div class="text-xs text-dark-400">Respiratory</div>
+          </div>
+          <div class="p-3 bg-dark-800/50 rounded-xl text-center">
+            <div class="text-lg font-bold text-white">${data.neurological.toFixed(2)}</div>
+            <div class="text-xs text-dark-400">Neurological</div>
+          </div>
+        </div>
+        ` : ''}
+      </div>
+    `;
+  }
+  
+  // Hook into existing record.js events if available
+  if (window.recordingAPI) {
+    window.recordingAPI.onStateChange = updateRecordingState;
+    window.recordingAPI.onAnalysisStart = showAnalysisLoading;
+    window.recordingAPI.onAnalysisComplete = hideAnalysisLoading;
+    window.recordingAPI.onResults = showResults;
+  }
+});
+</script>
 {% endblock %}
 
 

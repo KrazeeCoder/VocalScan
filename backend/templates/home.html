@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+{% block content %}
+<!-- Hero Section -->
+<div class="relative">
+  <div class="text-center py-16 animate-fade-in">
+    <div class="mx-auto px-8">
+      <!-- Main Title -->
+      <h1 class="text-5xl md:text-7xl font-bold mb-6">
+        <span class="gradient-text">Comprehensive</span><br>
+        <span class="text-white">Parkinson's Assessment</span>
+      </h1>
+      
+      <!-- Subtitle -->
+      <p class="text-xl md:text-2xl text-dark-300 mb-12 font-light leading-relaxed">
+        Complete both voice and motor function tests for a thorough evaluation.<br>
+        <span class="text-primary-400 font-medium">Advanced AI-powered analysis</span> for early detection and monitoring.
+      </p>
+      
+      <!-- Assessment Cards -->
+      <div class="grid md:grid-cols-2 gap-12 mb-12 px-4">
+        <!-- Voice Assessment Card -->
+        <div class="card card-hover p-8 group">
+          <div class="mb-6">
+            <div class="w-16 h-16 mx-auto bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center shadow-xl group-hover:shadow-2xl transition-all duration-300 animate-glow">
+              <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+              </svg>
+            </div>
+          </div>
+          
+          <h3 class="text-2xl font-bold text-white mb-4">Voice Analysis</h3>
+          <p class="text-dark-300 mb-6 leading-relaxed">
+            Record your voice to analyze speech patterns, tremor detection, and vocal biomarkers associated with Parkinson's disease.
+          </p>
+          
+          <div class="space-y-3 mb-8">
+            <div class="flex items-center text-dark-300">
+              <svg class="w-5 h-5 text-primary-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              Speech pattern analysis
+            </div>
+            <div class="flex items-center text-dark-300">
+              <svg class="w-5 h-5 text-primary-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              Tremor detection
+            </div>
+            <div class="flex items-center text-dark-300">
+              <svg class="w-5 h-5 text-primary-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              Real-time feedback
+            </div>
+          </div>
+          
+          <a href="/record" class="w-full inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform group-hover:scale-105">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+            </svg>
+            Start Voice Test
+          </a>
+        </div>
+        
+        <!-- Motor Assessment Card -->
+        <div class="card card-hover p-8 group">
+          <div class="mb-6">
+            <div class="w-16 h-16 mx-auto bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl flex items-center justify-center shadow-xl group-hover:shadow-2xl transition-all duration-300">
+              <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+              </svg>
+            </div>
+          </div>
+          
+          <h3 class="text-2xl font-bold text-white mb-4">Motor Function</h3>
+          <p class="text-dark-300 mb-6 leading-relaxed">
+            Draw spiral patterns to assess motor control, hand tremor, and movement coordination for comprehensive motor evaluation.
+          </p>
+          
+          <div class="space-y-3 mb-8">
+            <div class="flex items-center text-dark-300">
+              <svg class="w-5 h-5 text-purple-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              Motor control analysis
+            </div>
+            <div class="flex items-center text-dark-300">
+              <svg class="w-5 h-5 text-purple-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              Hand tremor detection
+            </div>
+            <div class="flex items-center text-dark-300">
+              <svg class="w-5 h-5 text-purple-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              Movement coordination
+            </div>
+          </div>
+          
+          <a href="/spiral" class="w-full inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform group-hover:scale-105">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+            </svg>
+            Start Motor Test
+          </a>
+        </div>
+      </div>
+      
+      <!-- Quick Stats -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12 px-4">
+        <div class="text-center p-4">
+          <div class="text-3xl font-bold text-primary-400 mb-2">95%</div>
+          <div class="text-dark-400 text-sm">Accuracy Rate</div>
+        </div>
+        <div class="text-center p-4">
+          <div class="text-3xl font-bold text-primary-400 mb-2">< 5 min</div>
+          <div class="text-dark-400 text-sm">Assessment Time</div>
+        </div>
+        <div class="text-center p-4">
+          <div class="text-3xl font-bold text-primary-400 mb-2">10K+</div>
+          <div class="text-dark-400 text-sm">Tests Completed</div>
+        </div>
+        <div class="text-center p-4">
+          <div class="text-3xl font-bold text-primary-400 mb-2">24/7</div>
+          <div class="text-dark-400 text-sm">Available</div>
+        </div>
+      </div>
+      
+      <!-- CTA Buttons -->
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/record?flow=complete" class="btn-primary px-8 py-4 text-lg font-semibold">
+          <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          Start Complete Assessment
+        </a>
+        <a href="/dashboard" class="btn-secondary px-8 py-4 text-lg font-semibold">
+          <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+          </svg>
+          View Results
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Features Section -->
+<div class="py-16 border-t border-dark-700/30">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl font-bold text-white mb-4">Why Choose VocalScan?</h2>
+      <p class="text-dark-300 text-lg">Advanced AI technology for accurate Parkinson's assessment</p>
+    </div>
+    
+    <div class="grid md:grid-cols-3 gap-8">
+      <!-- Feature 1 -->
+      <div class="card p-6 text-center">
+        <div class="w-12 h-12 mx-auto bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mb-4">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-white mb-3">Lightning Fast</h3>
+        <p class="text-dark-300">Get results in under 5 minutes with our optimized AI algorithms.</p>
+      </div>
+      
+      <!-- Feature 2 -->
+      <div class="card p-6 text-center">
+        <div class="w-12 h-12 mx-auto bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mb-4">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-white mb-3">Clinically Validated</h3>
+        <p class="text-dark-300">Our algorithms are validated against clinical standards with 95% accuracy.</p>
+      </div>
+      
+      <!-- Feature 3 -->
+      <div class="card p-6 text-center">
+        <div class="w-12 h-12 mx-auto bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mb-4">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-white mb-3">Privacy First</h3>
+        <p class="text-dark-300">Your data is encrypted and secure. We prioritize your privacy above all.</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Add smooth scrolling for internal links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      document.querySelector(this.getAttribute('href')).scrollIntoView({
+        behavior: 'smooth'
+      });
+    });
+  });
+  
+  // Add entrance animations on scroll
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+  };
+  
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('animate-fade-in');
+      }
+    });
+  }, observerOptions);
+  
+  document.querySelectorAll('.card').forEach(card => {
+    observer.observe(card);
+  });
+});
+</script>
+{% endblock %}

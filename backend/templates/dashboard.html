@@ -1,27 +1,220 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="mt-6 grid gap-6 lg:grid-cols-3">
-  <div class="lg:col-span-2 rounded-xl border border-gray-200 bg-white shadow-sm p-6">
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-xl font-semibold">Latest Results</h2>
-      <button id="start-welcome-tour" style="padding: 6px 12px; background: #4f46e5; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">Start Tour</button>
+<!-- Dashboard Header -->
+<div class="mb-8 animate-fade-in">
+  <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+    <div>
+      <h1 class="text-3xl font-bold text-white mb-2">Assessment Dashboard</h1>
+      <p class="text-dark-300">Monitor your Parkinson's assessment progress and view detailed results</p>
     </div>
-    <table id="historyTable" class="w-full text-left text-sm">
-      <thead>
-        <tr class="text-gray-500">
-          <th class="py-2">Time</th>
-          <th>Risk</th>
-          <th>Confidence</th>
-          <th>Resp</th>
-          <th>Neuro</th>
-        </tr>
-      </thead>
-      <tbody id="historyRows"></tbody>
-    </table>
+    <div class="mt-4 lg:mt-0 flex gap-3">
+      <button id="start-welcome-tour" class="btn-secondary">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        Start Tour
+      </button>
+      <a href="/record?flow=complete" class="btn-primary">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        New Assessment
+      </a>
+    </div>
   </div>
-  <div class="rounded-xl border border-gray-200 bg-white shadow-sm p-6">
-    <h3 class="font-semibold mb-4">Summary</h3>
-    <div id="summary" class="text-sm text-gray-700"></div>
+</div>
+
+<!-- Key Metrics Cards -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+  <!-- Total Assessments -->
+  <div class="card p-6 animate-fade-in">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-dark-400 text-sm font-medium">Total Assessments</p>
+        <p id="totalAssessments" class="text-2xl font-bold text-white mt-1">--</p>
+      </div>
+      <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Latest Risk Score -->
+  <div class="card p-6 animate-fade-in">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-dark-400 text-sm font-medium">Latest Risk Score</p>
+        <p id="latestRisk" class="text-2xl font-bold text-white mt-1">--</p>
+      </div>
+      <div class="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center">
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Average Confidence -->
+  <div class="card p-6 animate-fade-in">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-dark-400 text-sm font-medium">Avg Confidence</p>
+        <p id="avgConfidence" class="text-2xl font-bold text-white mt-1">--</p>
+      </div>
+      <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center">
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Last Assessment -->
+  <div class="card p-6 animate-fade-in">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-dark-400 text-sm font-medium">Last Assessment</p>
+        <p id="lastAssessment" class="text-2xl font-bold text-white mt-1">--</p>
+      </div>
+      <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main Content Grid -->
+<div class="grid lg:grid-cols-3 gap-8">
+  <!-- Assessment History -->
+  <div class="lg:col-span-2 card p-8 animate-fade-in">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h2 class="text-2xl font-bold text-white mb-1">Assessment History</h2>
+        <p class="text-dark-400">Track your progress over time</p>
+      </div>
+      <div class="flex gap-2">
+        <button class="btn-secondary py-2 px-3 text-sm">
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+          </svg>
+          Export
+        </button>
+        <button class="btn-secondary py-2 px-3 text-sm">
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+          Refresh
+        </button>
+      </div>
+    </div>
+    
+    <!-- Enhanced Table -->
+    <div class="overflow-x-auto">
+      <table id="historyTable" class="w-full">
+        <thead>
+          <tr class="border-b border-dark-700">
+            <th class="text-left py-4 px-4 text-dark-400 font-medium text-sm">Date & Time</th>
+            <th class="text-left py-4 px-4 text-dark-400 font-medium text-sm">Test Type</th>
+            <th class="text-left py-4 px-4 text-dark-400 font-medium text-sm">Risk Score</th>
+            <th class="text-left py-4 px-4 text-dark-400 font-medium text-sm">Confidence</th>
+            <th class="text-left py-4 px-4 text-dark-400 font-medium text-sm">Status</th>
+            <th class="text-left py-4 px-4 text-dark-400 font-medium text-sm">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="historyRows" class="divide-y divide-dark-700/30">
+          <!-- Dynamic content will be loaded here -->
+        </tbody>
+      </table>
+      
+      <!-- Empty State -->
+      <div id="emptyState" class="text-center py-12 hidden">
+        <div class="w-16 h-16 mx-auto mb-4 bg-dark-800 rounded-full flex items-center justify-center">
+          <svg class="w-8 h-8 text-dark-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+          </svg>
+        </div>
+        <h3 class="text-lg font-medium text-dark-300 mb-2">No assessments yet</h3>
+        <p class="text-dark-500 mb-6">Start your first assessment to see results here</p>
+        <a href="/record" class="btn-primary">Start Assessment</a>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Summary & Quick Actions -->
+  <div class="space-y-6">
+    <!-- Summary Card -->
+    <div class="card p-6 animate-fade-in">
+      <h3 class="text-xl font-bold text-white mb-4">Health Summary</h3>
+      <div id="summary" class="space-y-4">
+        <div class="p-4 bg-dark-800/50 rounded-xl">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-dark-300 text-sm">Overall Status</span>
+            <span id="overallStatus" class="status-success">Good</span>
+          </div>
+          <div class="w-full bg-dark-700 rounded-full h-2">
+            <div id="healthBar" class="bg-gradient-to-r from-green-500 to-primary-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+          </div>
+        </div>
+        
+        <div class="space-y-3" id="summaryDetails">
+          <!-- Summary details will be populated here -->
+        </div>
+      </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="card p-6 animate-fade-in">
+      <h3 class="text-xl font-bold text-white mb-4">Quick Actions</h3>
+      <div class="space-y-3">
+        <a href="/record" class="flex items-center p-3 bg-dark-800/50 hover:bg-dark-700/50 rounded-xl transition-all duration-200 group">
+          <div class="w-10 h-10 bg-primary-500/20 rounded-lg flex items-center justify-center mr-3 group-hover:bg-primary-500/30">
+            <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="text-white font-medium">Voice Assessment</p>
+            <p class="text-dark-400 text-sm">Record voice patterns</p>
+          </div>
+        </a>
+        
+        <a href="/spiral" class="flex items-center p-3 bg-dark-800/50 hover:bg-dark-700/50 rounded-xl transition-all duration-200 group">
+          <div class="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center mr-3 group-hover:bg-purple-500/30">
+            <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="text-white font-medium">Motor Function Test</p>
+            <p class="text-dark-400 text-sm">Draw spiral patterns</p>
+          </div>
+        </a>
+        
+        <a href="/treatments" class="flex items-center p-3 bg-dark-800/50 hover:bg-dark-700/50 rounded-xl transition-all duration-200 group">
+          <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center mr-3 group-hover:bg-green-500/30">
+            <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="text-white font-medium">View Treatments</p>
+            <p class="text-dark-400 text-sm">Treatment recommendations</p>
+          </div>
+        </a>
+      </div>
+    </div>
+    
+    <!-- Recent Activity -->
+    <div class="card p-6 animate-fade-in">
+      <h3 class="text-xl font-bold text-white mb-4">Recent Activity</h3>
+      <div id="recentActivity" class="space-y-3">
+        <!-- Recent activity items will be populated here -->
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}
@@ -29,18 +222,79 @@
 {% block scripts %}
 <script src="/static/js/dashboard.js"></script>
 <script>
+// Enhanced Dashboard JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize dashboard
+  initializeDashboard();
+  
   // Manual tour start for testing
-  document.addEventListener('DOMContentLoaded', () => {
-    const startTourBtn = document.getElementById('start-welcome-tour');
-    if (startTourBtn) {
-      startTourBtn.addEventListener('click', () => {
-        console.log('Manual tour start clicked');
-        if (window.vsWelcome) {
-          window.vsWelcome.start();
-        }
-      });
+  const startTourBtn = document.getElementById('start-welcome-tour');
+  if (startTourBtn) {
+    startTourBtn.addEventListener('click', () => {
+      console.log('Manual tour start clicked');
+      if (window.vsWelcome) {
+        window.vsWelcome.start();
+      }
+    });
+  }
+});
+
+function initializeDashboard() {
+  // Add loading states
+  showLoadingStates();
+  
+  // Load dashboard data (your existing logic will handle this)
+  setTimeout(() => {
+    hideLoadingStates();
+  }, 1000);
+}
+
+function showLoadingStates() {
+  const metrics = ['totalAssessments', 'latestRisk', 'avgConfidence', 'lastAssessment'];
+  metrics.forEach(id => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.classList.add('loading');
+      element.textContent = '--';
     }
   });
+}
+
+function hideLoadingStates() {
+  const metrics = ['totalAssessments', 'latestRisk', 'avgConfidence', 'lastAssessment'];
+  metrics.forEach(id => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.classList.remove('loading');
+    }
+  });
+}
+
+function updateHealthBar(percentage) {
+  const healthBar = document.getElementById('healthBar');
+  if (healthBar) {
+    healthBar.style.width = percentage + '%';
+  }
+}
+
+function updateOverallStatus(status, riskLevel) {
+  const statusElement = document.getElementById('overallStatus');
+  if (statusElement) {
+    statusElement.className = `status-${riskLevel}`;
+    statusElement.textContent = status;
+  }
+}
+
+// Add smooth animations for table rows
+function animateTableRow(row) {
+  row.style.opacity = '0';
+  row.style.transform = 'translateY(20px)';
+  setTimeout(() => {
+    row.style.transition = 'all 0.3s ease';
+    row.style.opacity = '1';
+    row.style.transform = 'translateY(0)';
+  }, 100);
+}
 </script>
 {% endblock %}
 

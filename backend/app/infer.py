@@ -286,3 +286,110 @@ def check_demographics_status():
     }), 200
 
 
+@infer_bp.post("/api/analyze-spiral")
+def analyze_spiral():
+    """Analyze spiral drawing from assessment flow.
+    
+    Expected JSON payload:
+      - path: array of drawing coordinates with timestamps
+      - image: base64 image data
+      - timestamp: ISO timestamp
+    """
+    try:
+        uid, _claims = verify_firebase_id_token(request)
+    except AuthError as exc:
+        return jsonify({"error": str(exc)}), 401
+
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+
+    spiral_path = data.get("path", [])
+    image_data = data.get("image", "")
+    timestamp = data.get("timestamp", "")
+
+    if not spiral_path:
+        return jsonify({"error": "No drawing path provided"}), 400
+
+    # Generate placeholder analysis based on drawing characteristics
+    def analyze_spiral_characteristics(path_data):
+        """Compute placeholder scores based on drawing path."""
+        if not path_data or len(path_data) < 10:
+            return {"tremor": 0.8, "smoothness": 0.2}, 0.3, "HIGH"
+        
+        # Calculate basic drawing metrics
+        total_points = len(path_data)
+        
+        # Simulate tremor analysis (more points = potentially more tremor)
+        tremor_score = min(total_points / 1000.0, 0.9)
+        
+        # Simulate smoothness (consistent timing = smoother)
+        timestamps = [p.get("timestamp", 0) for p in path_data]
+        if len(timestamps) > 1:
+            time_diffs = [timestamps[i+1] - timestamps[i] for i in range(len(timestamps)-1)]
+            avg_time_diff = sum(time_diffs) / len(time_diffs) if time_diffs else 1
+            smoothness_score = max(0.1, min(0.9, 1.0 - (tremor_score * 0.5)))
+        else:
+            smoothness_score = 0.5
+        
+        scores = {
+            "tremor": round(tremor_score, 3),
+            "smoothness": round(smoothness_score, 3),
+            "coordination": round((smoothness_score + (1.0 - tremor_score)) / 2, 3)
+        }
+        
+        # Determine risk level
+        max_risk_score = max(tremor_score, 1.0 - smoothness_score)
+        if max_risk_score < 0.33:
+            risk = "LOW"
+        elif max_risk_score < 0.66:
+            risk = "MEDIUM"
+        else:
+            risk = "HIGH"
+        
+        confidence = round(0.7 + (smoothness_score * 0.2), 2)
+        return scores, confidence, risk
+
+    scores, confidence, risk_level = analyze_spiral_characteristics(spiral_path)
+
+    # Generate unique drawing ID
+    drawing_id = f"spiral_{int(time.time() * 1000)}"
+
+    # Save to Firestore
+    db = firestore.client()
+    user_ref = db.collection("users").document(uid)
+    
+    # Update user summary
+    user_ref.set({
+        "lastSpiralDrawingAt": firestore.SERVER_TIMESTAMP,
+    }, merge=True)
+
+    # Save detailed spiral record
+    spiral_ref = user_ref.collection("spiralDrawings").document(drawing_id)
+    spiral_ref.set({
+        "createdAt": firestore.SERVER_TIMESTAMP,
+        "drawingPath": spiral_path,
+        "imageData": image_data[:100],  # Store truncated image data for privacy
+        "modelVersion": "placeholder-v1",
+        "scores": scores,
+        "confidence": confidence,
+        "riskLevel": risk_level,
+        "timestamp": timestamp,
+        "status": "analyzed",
+        "totalPoints": len(spiral_path),
+    })
+
+    return jsonify({
+        "drawingId": drawing_id,
+        "modelVersion": "placeholder-v1",
+        "scores": scores,
+        "confidence": confidence,
+        "riskLevel": risk_level,
+        "analysis": {
+            "tremor": scores["tremor"],
+            "smoothness": scores["smoothness"],
+            "coordination": scores["coordination"]
+        }
+    }), 200
+
+

@@ -48,7 +48,7 @@
         content: 'Use your mouse or finger to draw a spiral from the center outward. Try to follow the guide lines and keep your movement smooth.',
         target: '#spiralCanvas',
         page: '/spiral',
-        action: 'highlight'
+        action: 'next'
       },
       {
         id: 'spiral-submit',
@@ -171,7 +171,8 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.15);
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(4px);
         z-index: 9998;
         transition: all 0.3s ease;
         pointer-events: none;
@@ -188,15 +189,17 @@
       this.tooltip.id = 'welcome-tooltip';
       this.tooltip.style.cssText = `
         position: fixed;
-        background: white;
-        border-radius: 12px;
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        border: 1px solid #475569;
+        border-radius: 16px;
         padding: 24px;
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
         z-index: 9999;
-        max-width: 400px;
+        max-width: 420px;
         font-family: 'Inter', sans-serif;
         transform: translateY(-10px);
         animation: welcomeFadeIn 0.3s ease forwards;
+        backdrop-filter: blur(8px);
       `;
 
       const stepNumber = this.currentStep + 1;
@@ -205,17 +208,17 @@
       this.tooltip.innerHTML = `
         <div style="margin-bottom: 16px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #1f2937;">${step.title}</h3>
-            <span style="background: #e5e7eb; color: #6b7280; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 500;">${stepNumber}/${totalSteps}</span>
+            <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #f1f5f9;">${step.title}</h3>
+            <span style="background: #475569; color: #cbd5e1; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 500;">${stepNumber}/${totalSteps}</span>
           </div>
-          <div style="color: #6b7280; font-size: 14px; line-height: 1.5;">${step.content}</div>
+          <div style="color: #cbd5e1; font-size: 14px; line-height: 1.5;">${step.content}</div>
         </div>
         <div style="display: flex; gap: 12px; justify-content: flex-end;">
-          ${this.currentStep > 0 ? '<button id="welcome-prev" style="padding: 8px 16px; border: 1px solid #d1d5db; background: white; color: #374151; border-radius: 6px; cursor: pointer; font-size: 14px;">Previous</button>' : ''}
-          ${step.action === 'no-button' || step.action === 'wait-for-start' || step.action === 'wait-for-spiral-submit' ? '' : step.action === 'exit' ? '<button id="welcome-exit" style="padding: 8px 16px; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;">Finish Tour</button>' : step.action === 'hide-and-wait' ? '<button id="welcome-hide" style="padding: 8px 16px; background: #f59e0b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;">Continue</button>' : `<button id="welcome-next" style="padding: 8px 16px; background: #4f46e5; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;">
+          ${this.currentStep > 0 ? '<button id="welcome-prev" style="padding: 8px 16px; border: 1px solid #475569; background: #334155; color: #e2e8f0; border-radius: 8px; cursor: pointer; font-size: 14px; transition: all 0.2s;">Previous</button>' : ''}
+          ${step.action === 'no-button' || step.action === 'wait-for-start' || step.action === 'wait-for-spiral-submit' ? '' : step.action === 'exit' ? '<button id="welcome-exit" style="padding: 8px 16px; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s;">Finish Tour</button>' : step.action === 'hide-and-wait' ? '<button id="welcome-hide" style="padding: 8px 16px; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s;">Continue</button>' : `<button id="welcome-next" style="padding: 8px 16px; background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s;">
             ${step.action === 'navigate' ? 'Continue' : 'Next'}
           </button>`}
-          <button id="welcome-skip" style="padding: 8px 16px; border: none; background: transparent; color: #6b7280; cursor: pointer; font-size: 14px;">Skip Tour</button>
+          <button id="welcome-skip" style="padding: 8px 16px; border: none; background: transparent; color: #94a3b8; cursor: pointer; font-size: 14px; transition: all 0.2s;">Skip Tour</button>
         </div>
       `;
 
