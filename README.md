@@ -60,6 +60,29 @@ VocalScan is an AI-powered web application that analyzes voice patterns to ident
 
 ## 🚀 **Quick Start (2 Minutes)**
 
+### **Windows Quick Start (CMD)**
+```bat
+REM 0) From the repo root: create and activate a virtual environment (first time)
+python -m venv .venv
+.\.venv\Scripts\activate
+python -m pip install --upgrade pip
+
+REM 1) Create env files (first time only)
+echo LOG_LEVEL=INFO> backend\.env
+echo ALLOWED_ORIGINS=http://localhost:3000>> backend\.env
+echo PORT=8080>> backend\.env
+echo NEXT_PUBLIC_API_URL=http://localhost:8080> frontend\.env.local
+
+REM 2) Start backend (Lite) in Terminal 1
+start-backend-lite.bat
+
+REM 3) Start frontend in Terminal 2
+start-frontend.bat
+
+REM 4) Open the app
+REM http://localhost:3000
+```
+
 ### **Instant Demo (Recommended)**
 ```bash
 # 1. Start backend (Terminal 1)
@@ -83,6 +106,13 @@ cd frontend
 npm run dev
 ```
 
+### **Verify servers (Windows CMD)**
+```bat
+curl http://localhost:8080/health
+```
+
+If you see `{ "status": "ok" }`, the backend is running. Then open `http://localhost:3000` in your browser.
+
 ### **Full ML Setup (Advanced)**
 ```bash
 # 1. Install ML dependencies
@@ -95,6 +125,13 @@ start-backend.bat
 # 3. Start frontend
 start-frontend.bat
 ```
+
+### 🪟 **Windows Troubleshooting**
+- **pip not recognized**: Reopen the terminal after installing Python, or use `py -3 -m venv .venv` then `.\.venv\Scripts\activate`.
+- **Permission errors installing packages**: Ensure the virtual environment is activated before running the start scripts.
+- **Port 8080 in use**: Edit `backend/.env` to set `PORT=8081` (for example) and update `frontend/.env.local` to `NEXT_PUBLIC_API_URL=http://localhost:8081`. Restart both servers.
+- **CORS errors**: Confirm `ALLOWED_ORIGINS=http://localhost:3000` in `backend/.env` matches the frontend URL.
+- **401 auth errors**: The app uses mock auth in development. The frontend already sends `Authorization: Bearer demo-token`. If calling the API manually, include that header.
 
 ## 📊 API Endpoints
 
