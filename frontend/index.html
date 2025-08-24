@@ -534,13 +534,13 @@
           onAuthStateChanged(auth, (user) => {
             console.log('Auth state changed:', user);
             if (user) {
-              setStatus(els.authStatus, `Welcome, ${user.displayName || user.email}! <a href="http://localhost:3002" style="color: #2196F3; text-decoration: underline; font-weight: bold;">Continue to VocalScan App →</a>`, true);
+              setStatus(els.authStatus, `Welcome, ${user.displayName || user.email}! <a href="vocalscan.html" style="color: #2196F3; text-decoration: underline; font-weight: bold;">Continue to VocalScan App →</a>`, true);
               els.signOutBtn.style.display = 'inline-block';
               
               // Auto-redirect after 3 seconds with user confirmation
               setTimeout(() => {
                 if (confirm('Ready to start your voice analysis? Click OK to go to VocalScan app, or Cancel to stay here.')) {
-                  window.location.href = 'http://localhost:3002';
+                  window.location.href = 'vocalscan.html';
                 }
               }, 3000);
             } else {
@@ -661,10 +661,10 @@
           // Show success message with countdown
           let countdown = 3;
           const updateCountdown = () => {
-            setStatus(els.authStatus, `Welcome back! Redirecting to VocalScan App in ${countdown} seconds... <a href="http://localhost:3002" style="color: #2196F3; text-decoration: underline; font-weight: bold;">Go Now →</a>`, true);
+            setStatus(els.authStatus, `Welcome back! Redirecting to VocalScan App in ${countdown} seconds... <a href="vocalscan.html" style="color: #2196F3; text-decoration: underline; font-weight: bold;">Go Now →</a>`, true);
             countdown--;
             if (countdown <= 0) {
-              window.location.href = 'http://localhost:3002';
+              window.location.href = 'vocalscan.html';
             }
           };
           
@@ -716,10 +716,10 @@
           // Show success message with countdown
           let countdown = 3;
           const updateCountdown = () => {
-            setStatus(els.authStatus, `Account created! Welcome to VocalScan. Redirecting in ${countdown} seconds... <a href="http://localhost:3002" style="color: #2196F3; text-decoration: underline; font-weight: bold;">Go Now →</a>`, true);
+            setStatus(els.authStatus, `Account created! Welcome to VocalScan. Redirecting in ${countdown} seconds... <a href="vocalscan.html" style="color: #2196F3; text-decoration: underline; font-weight: bold;">Go Now →</a>`, true);
             countdown--;
             if (countdown <= 0) {
-              window.location.href = 'http://localhost:3002';
+              window.location.href = 'vocalscan.html';
             }
           };
           
