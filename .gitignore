@@ -1,7 +1,0 @@
-backend/firebase-service-account.json
-backend/.venv/
-**/__pycache__/
-*.pyc
-**/node_modules/
-**/.env
-**/.env.local
