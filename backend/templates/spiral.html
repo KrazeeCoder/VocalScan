@@ -1,86 +1,94 @@
 {% extends 'base.html' %}
 {% block content %}
 <!-- Page Header -->
-<div class="mb-8 animate-fade-in">
-  <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-    <div>
-      <h1 class="text-3xl font-bold text-white mb-2">Spiral Drawing Tests</h1>
-      <p class="text-dark-300">Assess motor function and tremor through static and dynamic spiral drawing patterns</p>
-    </div>
-    <div class="mt-4 lg:mt-0">
-      <a href="/dashboard" class="btn-secondary">
-        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-        </svg>
-        View Dashboard
+<div class="mb-10 animate-fade-in">
+  <div class="text-center">
+    <h1 class="text-5xl font-bold text-white mb-6">Movement Test</h1>
+    <p class="text-2xl text-dark-300 mb-8">Draw a spiral to check how steady your hand is</p>
+    
+    <div class="flex justify-center gap-4">
+      <a href="/dashboard" class="btn-secondary text-lg px-6 py-3">
+        ← Back to Results
+      </a>
+      <a href="/record" class="btn-secondary text-lg px-6 py-3">
+        Take Voice Test
       </a>
     </div>
   </div>
 </div>
 
 <!-- Test Selection -->
-<div class="mb-8 animate-fade-in">
-  <div class="card p-6">
-    <h2 class="text-xl font-bold text-white mb-4">Select Test Type</h2>
-    <div class="grid md:grid-cols-2 gap-6">
+<div class="mb-10 animate-fade-in">
+  <div class="card p-8">
+    <div class="text-center mb-8">
+      <h2 class="text-3xl font-bold text-white mb-4">Choose Your Test</h2>
+      <p class="text-xl text-dark-300">Pick the one that feels right for you</p>
+    </div>
+    
+    <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
       
-      <!-- Static Spiral Test -->
+      <!-- Easy Test -->
       <div class="relative">
         <input type="radio" id="staticTest" name="testType" value="static" class="sr-only peer" checked>
-        <label for="staticTest" class="block p-6 bg-dark-800/50 border-2 border-dark-600 rounded-xl cursor-pointer hover:border-primary-500 peer-checked:border-primary-500 peer-checked:bg-primary-500/10 transition-all duration-300">
-          <div class="flex items-center mb-4">
-            <div class="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center mr-3">
-              <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <label for="staticTest" class="block p-8 bg-green-500/10 border-4 border-green-500/30 rounded-2xl cursor-pointer hover:border-green-500 peer-checked:border-green-500 peer-checked:bg-green-500/20 transition-all duration-300">
+          <div class="text-center">
+            <div class="w-16 h-16 bg-green-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <svg class="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
             </div>
-            <h3 class="text-lg font-bold text-white">Static Spiral Test (SST)</h3>
+            <h3 class="text-2xl font-bold text-white mb-4">Easy Test</h3>
+            <p class="text-lg text-dark-300 mb-6">
+              You can see the spiral the whole time.<br>
+              Just trace over it with your mouse or finger.
+            </p>
+            <div class="text-green-400 text-lg font-medium">
+              ✓ Recommended for most people<br>
+              ✓ Takes about 5 minutes
+            </div>
           </div>
-          <p class="text-dark-300 text-sm mb-3">
-            In the static spiral test, the patient is asked to trace a pre-drawn spiral pattern on paper or a digital tablet. 
-            The spiral remains visible and stationary throughout the test, so the patient can continuously follow the template.
-          </p>
-          <p class="text-primary-400 text-sm font-medium">
-            ✓ Evaluates tremor and motor performance<br>
-            ✓ Analyzes accuracy following fixed pattern<br>
-            ✓ Continuous visual guidance available
-          </p>
         </label>
       </div>
 
-      <!-- Dynamic Spiral Test -->
+      <!-- Hard Test -->
       <div class="relative">
         <input type="radio" id="dynamicTest" name="testType" value="dynamic" class="sr-only peer">
-        <label for="dynamicTest" class="block p-6 bg-dark-800/50 border-2 border-dark-600 rounded-xl cursor-pointer hover:border-primary-500 peer-checked:border-primary-500 peer-checked:bg-primary-500/10 transition-all duration-300">
-          <div class="flex items-center mb-4">
-            <div class="w-10 h-10 bg-orange-500/20 rounded-xl flex items-center justify-center mr-3">
-              <svg class="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <label for="dynamicTest" class="block p-8 bg-orange-500/10 border-4 border-orange-500/30 rounded-2xl cursor-pointer hover:border-orange-500 peer-checked:border-orange-500 peer-checked:bg-orange-500/20 transition-all duration-300">
+          <div class="text-center">
+            <div class="w-16 h-16 bg-orange-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <svg class="w-8 h-8 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
               </svg>
             </div>
-            <h3 class="text-lg font-bold text-white">Dynamic Spiral Test (DST)</h3>
+            <h3 class="text-2xl font-bold text-white mb-4">Hard Test</h3>
+            <p class="text-lg text-dark-300 mb-6">
+              The spiral disappears and appears.<br>
+              You need to remember the pattern.
+            </p>
+            <div class="text-orange-400 text-lg font-medium">
+              ✓ More challenging<br>
+              ✓ Takes about 8 minutes
+            </div>
           </div>
-          <p class="text-dark-300 text-sm mb-3">
-            In the dynamic spiral test, the spiral template appears and disappears, or "blinks," at certain time intervals. 
-            This requires the patient to memorize the pattern and continue drawing even when the template is not visible.
-          </p>
-          <p class="text-orange-400 text-sm font-medium">
-            ✓ More challenging variation<br>
-            ✓ Measures pause times and memory<br>
-            ✓ Assesses hand-eye coordination<br>
-            ✓ Tests drawing performance under difficulty
-          </p>
         </label>
       </div>
     </div>
     
-    <!-- Start Test Button -->
-    <div class="mt-6 text-center">
-      <button id="startTestBtn" class="btn-primary">
-        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293H15M9 10V9a2 2 0 012-2h2a2 2 0 012 2v1M9 10v10a1 1 0 001 1h4a1 1 0 001-1V10M9 10H6m3 0V6l3 3 3-3v4"></path>
-        </svg>
-        Start Selected Test
+    <!-- Simple Instructions -->
+    <div class="mt-8 p-6 bg-blue-500/10 border-2 border-blue-500/30 rounded-2xl max-w-2xl mx-auto">
+      <h4 class="text-2xl font-bold text-white mb-4 text-center">How to Do the Test</h4>
+      <div class="text-lg text-dark-300 space-y-2">
+        <p>• Use your mouse or finger to draw</p>
+        <p>• Start from the center dot</p>
+        <p>• Draw slowly and carefully</p>
+        <p>• Don't worry if it's not perfect</p>
+      </div>
+    </div>
+    
+    <!-- Start Button -->
+    <div class="mt-8 text-center">
+      <button id="startTestBtn" class="btn-primary text-2xl px-12 py-4">
+        Start Test
       </button>
     </div>
   </div>
@@ -103,45 +111,51 @@
     </div>
     
     <!-- Test Controls -->
-    <div class="flex items-center gap-4 mb-6">
-      <button id="clearBtn" class="btn-secondary">
-        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-        </svg>
-        Clear Canvas
-      </button>
-      
-      <button id="toggleTemplateBtn" class="btn-secondary hidden">
-        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-        </svg>
-        <span id="templateBtnText">Hide Template</span>
-      </button>
-      
-      <div id="dynamicControls" class="hidden flex items-center gap-3">
-        <label class="text-sm text-dark-300">Blink Interval:</label>
-        <select id="blinkInterval" class="px-3 py-1 bg-dark-700 border border-dark-600 text-white rounded-lg text-sm">
-          <option value="2000">2 seconds</option>
-          <option value="3000" selected>3 seconds</option>
-          <option value="4000">4 seconds</option>
-          <option value="5000">5 seconds</option>
-        </select>
+    <div class="bg-dark-800/50 rounded-xl p-6 mb-6">
+      <div class="flex flex-wrap items-center gap-4">
+        <button id="clearBtn" class="btn-secondary">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+          </svg>
+          Clear Canvas
+        </button>
+        
+        <button id="toggleTemplateBtn" class="btn-secondary hidden">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+          </svg>
+          <span id="templateBtnText">Hide Template</span>
+        </button>
+        
+        <div id="dynamicControls" class="hidden flex items-center gap-3 bg-dark-700/50 px-4 py-2 rounded-lg">
+          <label class="text-sm text-dark-300 font-medium">Blink Interval:</label>
+          <select id="blinkInterval" class="px-3 py-2 bg-dark-700 border border-dark-600 text-white rounded-lg text-sm min-w-[120px]">
+            <option value="2000">2 seconds</option>
+            <option value="3000" selected>3 seconds</option>
+            <option value="4000">4 seconds</option>
+            <option value="5000">5 seconds</option>
+          </select>
+        </div>
+        
+        <div class="flex-1"></div>
+        
+        <button id="submitSpiralBtn" class="btn-primary disabled:opacity-50 disabled:cursor-not-allowed px-6">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          Save & Analyze
+        </button>
       </div>
-      
-      <button id="submitSpiralBtn" class="btn-primary disabled:opacity-50 disabled:cursor-not-allowed">
-        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-        </svg>
-        Save & Analyze
-      </button>
     </div>
     
     <!-- Status -->
-    <div class="mb-4">
-      <div class="flex items-center text-sm">
-        <div id="statusIndicator" class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-        <span id="spiralStatus" class="text-dark-400 text-sm">Test ready - begin drawing when you're ready</span>
+    <div class="mb-6">
+      <div class="bg-dark-800/30 rounded-lg p-4 border border-dark-700">
+        <div class="flex items-center">
+          <div id="statusIndicator" class="w-3 h-3 bg-green-500 rounded-full mr-3 animate-pulse"></div>
+          <span id="spiralStatus" class="text-white font-medium">Test ready - begin drawing when you're ready</span>
+        </div>
       </div>
     </div>
     
@@ -196,34 +210,6 @@
           </div>
           <h4 class="font-medium text-white mb-2">Keep Steady</h4>
           <p class="text-dark-300 text-sm">Maintain consistent speed and pressure</p>
-        </div>
-      </div>
-    </div>
-    <!-- Drawing Settings -->
-    <div class="card p-6 animate-fade-in">
-      <h3 class="text-xl font-bold text-white mb-4">Drawing Settings</h3>
-      <div class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-dark-300 mb-2">Brush Size</label>
-          <div class="flex items-center space-x-3">
-            <span class="text-dark-500 text-sm">Fine</span>
-            <input type="range" class="flex-1" min="1" max="10" value="3" id="brushSize">
-            <span class="text-dark-500 text-sm">Thick</span>
-          </div>
-          <div class="mt-2 h-6 bg-dark-800 rounded-full p-1">
-            <div id="brushPreview" class="w-3 h-3 bg-primary-500 rounded-full transition-all duration-200"></div>
-          </div>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-dark-300 mb-2">Drawing Color</label>
-          <div class="flex space-x-2">
-            <button class="w-8 h-8 bg-blue-500 rounded-full border-2 border-transparent focus:border-white transition-all" data-color="#3b82f6"></button>
-            <button class="w-8 h-8 bg-red-500 rounded-full border-2 border-transparent focus:border-white transition-all" data-color="#ef4444"></button>
-            <button class="w-8 h-8 bg-green-500 rounded-full border-2 border-transparent focus:border-white transition-all" data-color="#10b981"></button>
-            <button class="w-8 h-8 bg-purple-500 rounded-full border-2 border-transparent focus:border-white transition-all" data-color="#8b5cf6"></button>
-            <button class="w-8 h-8 bg-gray-800 rounded-full border-2 border-white transition-all" data-color="#1f2937"></button>
-          </div>
         </div>
       </div>
     </div>
