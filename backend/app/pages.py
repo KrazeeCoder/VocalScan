@@ -52,3 +52,8 @@ def export():
     return render_template("export.html")
 
 
+@pages_bp.get("/activity")
+def activity():
+    return render_template("activity.html")
+
+

@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from statistics import median
 from typing import Any, Dict, Iterable, List, Optional, Tuple
+from zoneinfo import ZoneInfo
 
 from flask import Blueprint, jsonify, request, send_file
 from firebase_admin import firestore, storage
@@ -72,6 +73,19 @@ def _as_datetime(ts: Any) -> Optional[datetime]:
     except Exception:
         pass
     return None
+
+
+def _format_local(dt: Optional[datetime], tz_name: Optional[str]) -> str:
+    if dt is None:
+        return ""
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    try:
+        if tz_name:
+            dt = dt.astimezone(ZoneInfo(tz_name))
+    except Exception:
+        dt = dt.astimezone(timezone.utc)
+    return dt.strftime("%b %d, %Y %I:%M %p")  # e.g., Aug 24, 2025 03:12 PM
 
 
 # -----------------------------
@@ -289,11 +303,11 @@ def export_csv(user_id: str):
     writer = csv.writer(output)
     writer.writerow([
         "eventType",
-        "timestamp",
-        "timezone",
+        "time",
+        "timeZone",
         "medId",
         "medName",
-        "scheduledTime",
+        "scheduled",
         "taken",
         "motor",
         "voice",
@@ -302,7 +316,7 @@ def export_csv(user_id: str):
         "fatigue",
         "onOff",
         "notes",
-        "audioFilePath",
+        "audioFile",
         "deviceId",
     ])
 
@@ -310,8 +324,8 @@ def export_csv(user_id: str):
         d = e.to_dict() or {}
         med_id = d.get("medId") or ""
         med_name = (meds_map.get(med_id) or {}).get("name", "")
-        ts = d.get("timeRecordedIso") or _as_datetime(d.get("timeRecorded"))
-        ts_str = ts if isinstance(ts, str) else (ts.isoformat() if ts else "")
+        ts_dt = _as_datetime(d.get("timeRecorded")) or _parse_iso8601(d.get("timeRecordedIso"))
+        ts_str = _format_local(ts_dt, d.get("timezone"))
         writer.writerow([
             "MED_EVENT",
             ts_str,
@@ -333,8 +347,8 @@ def export_csv(user_id: str):
 
     for s in sym_q.stream():
         d = s.to_dict() or {}
-        ts = d.get("timeRecordedIso") or _as_datetime(d.get("timeRecorded"))
-        ts_str = ts if isinstance(ts, str) else (ts.isoformat() if ts else "")
+        ts_dt = _as_datetime(d.get("timeRecorded")) or _parse_iso8601(d.get("timeRecordedIso"))
+        ts_str = _format_local(ts_dt, d.get("timezone"))
         writer.writerow([
             "SYMPTOM_LOG",
             ts_str,
@@ -436,7 +450,7 @@ def export_pdf(user_id: str):
     pdf.drawString(72, height - 72, "VocalScan Report")
     pdf.setFont("Helvetica", 10)
     rng = f"{start.isoformat() if start else ''} — {end.isoformat() if end else ''}"
-    pdf.drawString(72, height - 92, f"Date range: {rng}")
+    pdf.drawString(72, height - 92, f"Date range: {rng if rng.strip(' — ') else 'All time'}")
     pdf.drawString(72, height - 108, f"Generated at: {datetime.now(timezone.utc).isoformat()}")
     pdf.drawString(72, height - 124, "Disclaimer: This is a patient-record export. Not a diagnosis.")
     name = (profile or {}).get("displayName") or "(anonymous)"

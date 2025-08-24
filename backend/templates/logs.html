@@ -21,29 +21,44 @@
 
   <div class="rounded-xl border border-gray-200 bg-white shadow-sm p-6">
     <h2 class="text-xl font-semibold mb-4">Log Symptoms</h2>
-    <div class="grid grid-cols-2 gap-3">
+    <div class="grid grid-cols-2 gap-4">
       <div>
-        <label class="block text-sm">Motor</label>
-        <input id="motor" type="range" min="0" max="10" value="5" class="w-full"/>
+        <label class="block text-sm">Motor control <span class="text-gray-500 text-xs">(0 = very poor, 10 = excellent)</span></label>
+        <div class="flex items-center gap-3">
+          <input id="motor" type="range" min="0" max="10" value="5" class="w-full"/>
+          <span id="motorVal" class="text-sm w-8 text-right">5</span>
+        </div>
       </div>
       <div>
-        <label class="block text-sm">Voice</label>
-        <input id="voice" type="range" min="0" max="10" value="5" class="w-full"/>
+        <label class="block text-sm">Voice quality <span class="text-gray-500 text-xs">(0 = very weak, 10 = strong)</span></label>
+        <div class="flex items-center gap-3">
+          <input id="voice" type="range" min="0" max="10" value="5" class="w-full"/>
+          <span id="voiceVal" class="text-sm w-8 text-right">5</span>
+        </div>
       </div>
       <div>
-        <label class="block text-sm">Cognition</label>
-        <input id="cognition" type="range" min="0" max="10" value="5" class="w-full"/>
+        <label class="block text-sm">Cognition/clarity <span class="text-gray-500 text-xs">(0 = very foggy, 10 = very clear)</span></label>
+        <div class="flex items-center gap-3">
+          <input id="cognition" type="range" min="0" max="10" value="5" class="w-full"/>
+          <span id="cognitionVal" class="text-sm w-8 text-right">5</span>
+        </div>
       </div>
       <div>
-        <label class="block text-sm">Mood</label>
-        <input id="mood" type="range" min="0" max="10" value="5" class="w-full"/>
+        <label class="block text-sm">Mood <span class="text-gray-500 text-xs">(0 = low, 10 = great)</span></label>
+        <div class="flex items-center gap-3">
+          <input id="mood" type="range" min="0" max="10" value="5" class="w-full"/>
+          <span id="moodVal" class="text-sm w-8 text-right">5</span>
+        </div>
       </div>
       <div>
-        <label class="block text-sm">Fatigue</label>
-        <input id="fatigue" type="range" min="0" max="10" value="5" class="w-full"/>
+        <label class="block text-sm">Fatigue <span class="text-gray-500 text-xs">(0 = exhausted, 10 = energized)</span></label>
+        <div class="flex items-center gap-3">
+          <input id="fatigue" type="range" min="0" max="10" value="5" class="w-full"/>
+          <span id="fatigueVal" class="text-sm w-8 text-right">5</span>
+        </div>
       </div>
       <div>
-        <label class="block text-sm">ON/OFF</label>
+        <label class="block text-sm">Status</label>
         <select id="onOff" class="input">
           <option>Unknown</option>
           <option>ON</option>

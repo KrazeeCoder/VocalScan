@@ -48,6 +48,17 @@
     await authUser();
     document.getElementById('saveMed').onclick = () => saveMed().catch(e => alert(e.message||'Failed'));
     document.getElementById('saveSym').onclick = () => saveSym().catch(e => alert(e.message||'Failed'));
+    // Live value updates for sliders
+    const ids = ['motor','voice','cognition','mood','fatigue'];
+    ids.forEach(id => {
+      const input = document.getElementById(id);
+      const out = document.getElementById(id+'Val');
+      if (input && out){
+        const update = () => { out.textContent = input.value; };
+        input.addEventListener('input', update);
+        update();
+      }
+    });
   });
 })();
 
