@@ -51,8 +51,6 @@
     ctx.lineJoin = 'round';
     ctx.lineWidth = 3;
     ctx.strokeStyle = '#111827';
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0,0,canvas.width,canvas.height);
     drawGuides();
 
     const getPos = (e) => {
@@ -90,24 +88,12 @@
   }
 
   function drawGuides(){
-    // light spiral guideline
-    ctx.save();
-    ctx.globalAlpha = 0.15; ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 1.5;
-    const cx = canvas.width/2, cy = canvas.height/2;
-    ctx.beginPath();
-    const turns = 6; const spacing = 8; let angle = 0; let radius = 2;
-    const maxR = Math.min(cx, cy) - 10;
-    while (radius < maxR){
-      const x = cx + radius * Math.cos(angle);
-      const y = cy + radius * Math.sin(angle);
-      if (angle === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-      angle += Math.PI/36; radius += spacing/36;
-    }
-    ctx.stroke(); ctx.restore();
+    // No guides needed - using spiral.png template image instead
+    // Canvas should remain transparent to show the spiral.png underneath
   }
 
   function clearCanvas(){
-    ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,canvas.width,canvas.height); drawGuides(); hasStroke = false;
+    ctx.clearRect(0, 0, canvas.width, canvas.height); drawGuides(); hasStroke = false;
   }
 
   async function uploadAndInfer(){
