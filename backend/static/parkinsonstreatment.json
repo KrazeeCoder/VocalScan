@@ -1,0 +1,207 @@
+{
+  "parkinsons_treatments": [
+    {
+      "name": "Carbidopa-Levodopa",
+      "brand_name": "Sinemet",
+      "type": "Prescription Drug",
+      "evaluations": {
+        "perceived_effectiveness": "Effective for Parkinson's disease based on 20 evaluations",
+        "total_evaluations": 20
+      },
+      "side_effects": "Digestive problems",
+      "tried_for": [
+        "Parkinson's disease (57)",
+        "tremors (1)"
+      ],
+      "how_many_have_tried": 15278
+    },
+    {
+      "name": "Amantadine",
+      "brand_name": "Symmetrel",
+      "type": "Prescription Drug",
+      "evaluations": {
+        "perceived_effectiveness": "Effective for Parkinson's disease based on 24 evaluations",
+        "total_evaluations": 24
+      },
+      "side_effects": "Dizziness with hypotension upon standing, reactive depression",
+      "tried_for": [
+        "Parkinson's disease (11)",
+        "fatigue (3)",
+        "1 more"
+      ],
+      "how_many_have_tried": 4774
+    },
+    {
+      "name": "Deep Brain Stimulation",
+      "brand_name": "Subthalamic Nucleus Deep Brain Stimulation",
+      "type": "Equipment",
+      "evaluations": {
+        "perceived_effectiveness": "Effective for Parkinson's disease based on 4 evaluations",
+        "total_evaluations": 4
+      },
+      "side_effects": "Fatigue, lightheadedness",
+      "tried_for": [
+        "Parkinson's disease (7)",
+        "jerky movements (3)",
+        "2 more"
+      ],
+      "how_many_have_tried": 1744
+    },
+    {
+      "name": "Ropinirole",
+      "brand_name": "Requip",
+      "type": "Prescription Drug",
+      "evaluations": {
+        "perceived_effectiveness": "Effective for Parkinson's disease based on 4 evaluations",
+        "total_evaluations": 4
+      },
+      "side_effects": "N/A",
+      "tried_for": [
+        "Parkinson's disease (5)"
+      ],
+      "how_many_have_tried": 5075
+    },
+    {
+      "name": "Entacapone",
+      "brand_name": "Comtan",
+      "type": "Prescription Drug",
+      "evaluations": {
+        "perceived_effectiveness": "Effective for Parkinson's disease based on 1 evaluation",
+        "total_evaluations": 1
+      },
+      "side_effects": "N/A",
+      "tried_for": [
+        "Parkinson's disease (3)"
+      ],
+      "how_many_have_tried": 1953
+    },
+    {
+      "name": "Rasagiline",
+      "brand_name": "Azilect",
+      "type": "Prescription Drug",
+      "evaluations": {
+        "perceived_effectiveness": "N/A",
+        "total_evaluations": "N/A"
+      },
+      "side_effects": "N/A",
+      "tried_for": [
+        "N/A"
+      ],
+      "how_many_have_tried": 5015
+    },
+    {
+      "name": "Pramipexole",
+      "brand_name": "Mirapex",
+      "type": "Prescription Drug",
+      "evaluations": {
+        "perceived_effectiveness": "N/A",
+        "total_evaluations": "N/A"
+      },
+      "side_effects": "N/A",
+      "tried_for": [
+        "N/A"
+      ],
+      "how_many_have_tried": 4549
+    },
+    {
+      "name": "Rotigotine",
+      "brand_name": "Neupro Patch",
+      "type": "Prescription Drug",
+      "evaluations": {
+        "perceived_effectiveness": "N/A",
+        "total_evaluations": "N/A"
+      },
+      "side_effects": "N/A",
+      "tried_for": [
+        "N/A"
+      ],
+      "how_many_have_tried": 1813
+    },
+    {
+      "name": "Selegiline",
+      "brand_name": "Emsam",
+      "type": "Prescription Drug",
+      "evaluations": {
+        "perceived_effectiveness": "N/A",
+        "total_evaluations": "N/A"
+      },
+      "side_effects": "N/A",
+      "tried_for": [
+        "N/A"
+      ],
+      "how_many_have_tried": 1943
+    },
+    {
+      "name": "Carbidopa-Entacapone-Levodopa",
+      "brand_name": "Stalevo",
+      "type": "Prescription Drug",
+      "evaluations": {
+        "perceived_effectiveness": "N/A",
+        "total_evaluations": "N/A"
+      },
+      "side_effects": "N/A",
+      "tried_for": [
+        "N/A"
+      ],
+      "how_many_have_tried": 3084
+    },
+    {
+      "name": "Carbidopa-Levodopa ER",
+      "brand_name": "Rytary XR",
+      "type": "Prescription Drug",
+      "evaluations": {
+        "perceived_effectiveness": "Effective for Parkinson's disease based on 3 evaluations",
+        "total_evaluations": 3
+      },
+      "side_effects": "Digestive problems",
+      "tried_for": [
+        "Parkinson's disease (11)",
+        "stiffness/spasticity (2)"
+      ],
+      "how_many_have_tried": "N/A"
+    },
+    {
+      "name": "Levodopa-Benserazide",
+      "brand_name": "Madopar",
+      "type": "Prescription Drug",
+      "evaluations": {
+        "perceived_effectiveness": "Effective for Parkinson's disease based on 19 evaluations",
+        "total_evaluations": 19
+      },
+      "side_effects": "N/A",
+      "tried_for": [
+        "Parkinson's disease (4)",
+        "stiffness/spasticity (2)"
+      ],
+      "how_many_have_tried": "N/A"
+    },
+    {
+      "name": "Carbidopa-Levodopa CR",
+      "brand_name": "Sinemet CR",
+      "type": "Prescription Drug",
+      "evaluations": {
+        "perceived_effectiveness": "Effective for Parkinson's disease based on 1 evaluation",
+        "total_evaluations": 1
+      },
+      "side_effects": "N/A",
+      "tried_for": [
+        "Parkinson's disease (3)"
+      ],
+      "how_many_have_tried": "N/A"
+    },
+    {
+      "name": "Escitalopram",
+      "brand_name": "Lexapro",
+      "type": "N/A",
+      "evaluations": {
+        "perceived_effectiveness": "Effective for depressed mood based on 1 evaluation",
+        "total_evaluations": 1
+      },
+      "side_effects": "N/A",
+      "tried_for": [
+        "depressed mood (3)"
+      ],
+      "how_many_have_tried": "N/A"
+    }
+  ]
+}
