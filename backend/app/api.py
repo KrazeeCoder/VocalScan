@@ -13,9 +13,142 @@ from flask import Blueprint, jsonify, request, send_file
 from firebase_admin import firestore, storage
 
 from .auth import AuthError, verify_firebase_id_token
+import os
+import joblib
 
 
 api_bp = Blueprint("api", __name__)
+# -----------------------------
+# Therapy processing
+# -----------------------------
+
+
+@api_bp.post("/api/therapy/process")
+def therapy_process():
+    """Process a stored voice therapy session: download audio (if consented),
+    extract UCI-style features, and store under users/{uid}/voiceSessions/{sessionId}.
+
+    JSON body: { sessionId: str, storagePath: Optional[str], exerciseType: str }
+    """
+    try:
+        uid, _claims = verify_firebase_id_token(request)
+    except AuthError as exc:
+        return jsonify({"error": str(exc)}), 401
+
+    payload = request.get_json(silent=True) or {}
+    session_id = (payload.get("sessionId") or "").strip()
+    storage_path = (payload.get("storagePath") or "").strip()
+    if not session_id:
+        return jsonify({"error": "missing sessionId"}), 400
+
+    db = firestore.client()
+    user_ref = db.collection("users").document(uid)
+    sess_ref = user_ref.collection("voiceSessions").document(session_id)
+    # Read any existing session metadata (duration, etc.) to mirror into legacy collection
+    try:
+        sess_doc = sess_ref.get()
+        sess_data = sess_doc.to_dict() if sess_doc.exists else {}
+    except Exception:
+        sess_data = {}
+
+    import tempfile, subprocess
+    from backend.models.voice_features import extract_ucipd_from_wav
+
+    features: Dict[str, float] = {}
+    # If audio path is provided (consent), download and convert to wav
+    if storage_path:
+        try:
+            # Determine bucket name explicitly to avoid default-bucket errors
+            bucket_name = os.getenv("FIREBASE_STORAGE_BUCKET")
+            if not bucket_name:
+                # Attempt fallbacks: infer from project id env or known project id
+                project_id = os.getenv("FIREBASE_PROJECT_ID") or os.getenv("GOOGLE_CLOUD_PROJECT") or "vocalscan"
+                bucket_name = f"{project_id}.appspot.com"
+            bucket = storage.bucket(bucket_name)
+            blob = bucket.blob(storage_path)
+            with tempfile.NamedTemporaryFile(suffix=".webm", delete=False) as f_in, \
+                 tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f_wav:
+                tmp_in, tmp_wav = f_in.name, f_wav.name
+            try:
+                blob.download_to_filename(tmp_in)
+                # ffmpeg must be available on system PATH
+                subprocess.run(["ffmpeg", "-y", "-i", tmp_in, "-ar", "16000", "-ac", "1", tmp_wav], check=True)
+                features = extract_ucipd_from_wav(tmp_wav)
+                # add simple RMS via librosa if available
+                try:
+                    import numpy as np, librosa
+                    y, sr = librosa.load(tmp_wav, sr=16000, mono=True)
+                    rms = librosa.feature.rms(y=y)[0]
+                    features["rms_db_mean"] = float(20*np.log10(np.mean(rms)+1e-6))
+                    features["rms_db_max"] = float(20*np.log10(np.max(rms)+1e-6))
+                except Exception:
+                    pass
+            finally:
+                try:
+                    os.remove(tmp_in)
+                except Exception:
+                    pass
+                try:
+                    os.remove(tmp_wav)
+                except Exception:
+                    pass
+        except Exception as e:
+            return jsonify({"error": f"audio processing failed: {e}"}), 500
+    else:
+        # No audio uploaded; mark processed without features
+        features = {}
+
+    # Optional prediction using sklearn bundle if available
+    predicted_score = None
+    try:
+        bundle_path = os.path.join("runs", "uci_rf.joblib")
+        if os.path.exists(bundle_path) and features:
+            bundle = joblib.load(bundle_path)
+            cols = bundle.get("cols", [])
+            if cols:
+                import numpy as np
+                x = np.array([[features.get(c, 0.0) for c in cols]], dtype="float32")
+                xs = bundle["scaler"].transform(x)
+                # if classifier, use proba; if regressor, use predict
+                model = bundle["model"]
+                if hasattr(model, "predict_proba"):
+                    p = float(model.predict_proba(xs)[0, 1])
+                else:
+                    p = float(model.predict(xs)[0])
+                predicted_score = p
+    except Exception:
+        predicted_score = None
+
+    # Update Firestore document
+    sess_ref.set({
+        "processed": True,
+        "features": features,
+        "processedAt": firestore.SERVER_TIMESTAMP,
+        **({"predicted": predicted_score} if predicted_score is not None else {}),
+    }, merge=True)
+
+    # Mirror into legacy collection users/{uid}/voiceRecordings to match existing dashboard expectations
+    try:
+        record_id = session_id.replace("s_", "rec_")
+        rec_ref = user_ref.collection("voiceRecordings").document(record_id)
+        mirror_payload = {
+            "createdAt": firestore.SERVER_TIMESTAMP,
+            "storagePath": storage_path or "",
+            "durationSec": sess_data.get("duration_seconds"),
+            "sampleRate": 16000,
+            "modelVersion": "rf-uci-wav-v1",
+            "scores": ({"predicted": float(predicted_score)} if predicted_score is not None else {}),
+            "confidence": None,
+            "riskLevel": ("HIGH" if (predicted_score or 0) >= 0.66 else ("MEDIUM" if (predicted_score or 0) >= 0.33 else "LOW")) if predicted_score is not None else None,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "status": "analyzed",
+        }
+        rec_ref.set(mirror_payload, merge=True)
+    except Exception:
+        pass
+
+    return jsonify({"ok": True, "sessionId": session_id, "features": features, "predicted_score": predicted_score}), 200
+
 
 
 # -----------------------------
