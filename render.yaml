@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: vocalscan-backend
+    env: python
+    autoDeploy: true
+
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: gunicorn backend.app.main:app --workers 2 --threads 8 --timeout 180 --bind 0.0.0.0:$PORT
+
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: FIREBASE_PROJECT_ID
+        value: vocalscan
+      - key: FIREBASE_STORAGE_BUCKET
+        value: vocalscan.appspot.com
+      - key: FIREBASE_SERVICE_ACCOUNT_FILE
+        value: vocalscan-firebase-adminsdk-fbsvc-2e2615b477.json
+      - key: GOOGLE_APPLICATION_CREDENTIALS
+        value: vocalscan-firebase-adminsdk-fbsvc-2e2615b477.json
+      # Install needed system packages via Nixpacks (Render)
+      # ffmpeg for audio conversion; libsndfile for soundfile
+      - key: NIXPACKS_PKGS
+        value: "ffmpeg libsndfile"
+
+
