@@ -24,26 +24,43 @@ def _softmax_np(x: np.ndarray, axis: int = -1) -> np.ndarray:
 
 @dataclass
 class WeightedFusion:
-    """Linear-probability fusion: p = w_speech * p_speech + w_spiral * p_spiral.
+    """Linear probability fusion for up to three modalities (speech, spiral, demo).
 
-    Weights are normalized to sum to 1 if both modalities are provided.
-    If only one modality is provided, its probability is returned.
+    If multiple modalities are provided, their weights are renormalized to sum to 1.
+    If only one modality is provided, its probability is returned unchanged.
     """
 
-    w_speech: float = 0.5
-    w_spiral: float = 0.5
+    w_speech: float = 0.4
+    w_spiral: float = 0.4
+    w_demo: float = 0.2
 
-    def fuse(self, p_speech: Optional[np.ndarray], p_spiral: Optional[np.ndarray]) -> np.ndarray:
-        if p_speech is None and p_spiral is None:
+    def fuse(
+        self,
+        p_speech: Optional[np.ndarray],
+        p_spiral: Optional[np.ndarray],
+        p_demo: Optional[np.ndarray] = None,
+    ) -> np.ndarray:
+        provided = []
+        weights = []
+        if p_speech is not None:
+            provided.append(p_speech)
+            weights.append(self.w_speech)
+        if p_spiral is not None:
+            provided.append(p_spiral)
+            weights.append(self.w_spiral)
+        if p_demo is not None:
+            provided.append(p_demo)
+            weights.append(self.w_demo)
+        if not provided:
             raise ValueError("At least one modality probability must be provided")
-        if p_speech is None:
-            return p_spiral
-        if p_spiral is None:
-            return p_speech
-        w_sum = max(1e-6, float(self.w_speech + self.w_spiral))
-        ws = self.w_speech / w_sum
-        wp = self.w_spiral / w_sum
-        return ws * p_speech + wp * p_spiral
+        if len(provided) == 1:
+            return provided[0]
+        w_sum = max(1e-6, float(sum(weights)))
+        weights = [w / w_sum for w in weights]
+        fused = np.zeros_like(provided[0], dtype=np.float32)
+        for w, p in zip(weights, provided):
+            fused = fused + float(w) * p
+        return fused
 
 
 class LateFusionPredictor:
@@ -100,7 +117,8 @@ class LateFusionPredictor:
         self,
         speech_vec: Optional[np.ndarray] = None,  # shape (1, D)
         spiral_img: Optional[np.ndarray] = None,  # shape (1, 1, H, W)
-    ) -> Tuple[Optional[np.ndarray], Optional[np.ndarray], np.ndarray]:
+        p_demo: Optional[np.ndarray] = None,      # shape (1, 2)
+    ) -> Tuple[Optional[np.ndarray], Optional[np.ndarray], Optional[np.ndarray], np.ndarray]:
         p_speech: Optional[np.ndarray] = None
         p_spiral: Optional[np.ndarray] = None
 
@@ -130,7 +148,7 @@ class LateFusionPredictor:
             p2 = np.asarray([[1.0 - p_pd, p_pd]], dtype=np.float32)
             p_spiral = p2 if p_spiral is None else p_spiral
 
-        fused = self.fusion.fuse(p_speech, p_spiral)
-        return p_speech, p_spiral, fused
+        fused = self.fusion.fuse(p_speech, p_spiral, p_demo)
+        return p_speech, p_spiral, p_demo, fused
 
 
