@@ -1,13 +1,20 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="mx-auto max-w-4xl mt-10 animate-fade-in">
-  <div class="card p-8">
-    <div class="text-center mb-8">
-      <h1 class="text-4xl font-bold text-white mb-4">Complete Your Profile</h1>
-      <p class="text-dark-300 leading-relaxed">Help us provide better analysis by sharing some demographic information. This information is securely stored and used only for improving your health assessments.</p>
+  <!-- Page Header -->
+  <div class="text-center mb-10">
+    <div class="inline-flex items-center px-3 py-1 bg-blue-500/20 text-blue-400 text-sm font-medium rounded-full mb-4">
+      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+      </svg>
+      Profile Setup
     </div>
-    
-    <form id="demographicsForm" class="space-y-8">
+    <h1 class="text-4xl font-bold text-white mb-4">Complete Your Profile</h1>
+    <p class="text-dark-300 text-lg leading-relaxed max-w-2xl mx-auto">Help us provide better analysis by sharing some demographic information. This information is securely stored and used only for improving your health assessments.</p>
+  </div>
+  
+  <div class="card p-8">
+    <form id="demographicsForm" class="space-y-10">
       
       <!-- Basic Information -->
       <div class="border-b border-dark-600 pb-8">

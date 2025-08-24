@@ -2,19 +2,19 @@
 {% block content %}
 <!-- Dashboard Header -->
 <div class="mb-8 animate-fade-in">
-  <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+  <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
     <div>
-      <h1 class="text-3xl font-bold text-white mb-2">Assessment Dashboard</h1>
-      <p class="text-dark-300">Monitor your Parkinson's assessment progress and view detailed results</p>
+      <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">Assessment Dashboard</h1>
+      <p class="text-dark-300 text-lg">Monitor your Parkinson's assessment progress and view detailed results</p>
     </div>
-    <div class="mt-4 lg:mt-0 flex gap-3">
-      <button id="start-welcome-tour" class="btn-secondary">
+    <div class="flex flex-col sm:flex-row gap-3">
+      <button id="start-welcome-tour" class="btn-secondary flex items-center justify-center">
         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
         </svg>
-        Start Tour
+        Take Tour
       </button>
-      <a href="/record?flow=complete" class="btn-primary">
+      <a href="/record?flow=complete" class="btn-primary flex items-center justify-center">
         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
         </svg>
@@ -25,15 +25,16 @@
 </div>
 
 <!-- Key Metrics Cards -->
-<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
   <!-- Total Assessments -->
-  <div class="card p-6 animate-fade-in">
+  <div class="card card-hover p-6 animate-fade-in">
     <div class="flex items-center justify-between">
-      <div>
-        <p class="text-dark-400 text-sm font-medium">Total Assessments</p>
-        <p id="totalAssessments" class="text-2xl font-bold text-white mt-1">--</p>
+      <div class="flex-1">
+        <p class="text-dark-400 text-sm font-medium uppercase tracking-wide">Total Assessments</p>
+        <p id="totalAssessments" class="text-3xl font-bold text-white mt-2">--</p>
+        <p class="text-dark-400 text-xs mt-1">All time</p>
       </div>
-      <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+      <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0">
         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
         </svg>
@@ -42,11 +43,12 @@
   </div>
 
   <!-- Latest Risk Score -->
-  <div class="card p-6 animate-fade-in">
+  <div class="card card-hover p-6 animate-fade-in">
     <div class="flex items-center justify-between">
-      <div>
-        <p class="text-dark-400 text-sm font-medium">Latest Risk Score</p>
-        <p id="latestRisk" class="text-2xl font-bold text-white mt-1">--</p>
+      <div class="flex-1">
+        <p class="text-dark-400 text-sm font-medium uppercase tracking-wide">Latest Risk Score</p>
+        <p id="latestRisk" class="text-3xl font-bold text-white mt-2">--</p>
+        <p class="text-dark-400 text-xs mt-1">Risk assessment</p>
       </div>
       <div class="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center">
         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

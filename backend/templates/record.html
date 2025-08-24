@@ -1,18 +1,17 @@
 {% extends 'base.html' %}
 {% block content %}
 <!-- Page Header -->
-<div class="mb-8 animate-fade-in">
-  <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-    <div>
-      <h1 class="text-3xl font-bold text-white mb-2">Voice Assessment</h1>
-      <p class="text-dark-300">Record your voice to analyze speech patterns and detect potential Parkinson's indicators</p>
-    </div>
-    <div class="mt-4 lg:mt-0">
-      <a href="/dashboard" class="btn-secondary">
-        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-        </svg>
-        View Dashboard
+<div class="mb-10 animate-fade-in">
+  <div class="text-center">
+    <h1 class="text-5xl font-bold text-white mb-6">Voice Test</h1>
+    <p class="text-2xl text-dark-300 mb-8">Say "Ahhhh" for 10 seconds so we can check your voice</p>
+    
+    <div class="flex justify-center gap-4">
+      <a href="/dashboard" class="btn-secondary text-lg px-6 py-3">
+        ← Back to Results
+      </a>
+      <a href="/spiral" class="btn-secondary text-lg px-6 py-3">
+        Take Movement Test
       </a>
     </div>
   </div>
@@ -23,10 +22,10 @@
   <!-- Recording Interface -->
   <div class="lg:col-span-2 card p-8 animate-fade-in">
     <!-- Recording Header -->
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center justify-between mb-8">
       <div>
-        <h2 class="text-2xl font-bold text-white mb-1">Voice Recording</h2>
-        <p class="text-dark-400">Click start to begin recording your voice sample</p>
+        <h2 class="text-2xl font-bold text-white mb-2">Voice Recording</h2>
+        <p class="text-dark-400">Click start to begin recording your voice sample for analysis</p>
       </div>
       <div id="recordingStatus" class="status-warning hidden">
         <svg class="w-4 h-4 inline mr-1 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
@@ -37,14 +36,14 @@
     </div>
     
     <!-- Recording Controls -->
-    <div class="flex items-center justify-center gap-6 mb-8">
+    <div class="flex items-center justify-center gap-8 mb-8">
       <button id="startBtn" class="group relative">
-        <div class="w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-700 rounded-full flex items-center justify-center shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 group-hover:animate-glow">
-          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="start-recording">
+        <div class="w-24 h-24 bg-gradient-to-br from-primary-500 to-primary-700 rounded-full flex items-center justify-center shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 group-hover:animate-glow">
+          <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="start-recording">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
           </svg>
         </div>
-        <span class="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-dark-400 text-sm font-medium">Start</span>
+        <span class="absolute -bottom-10 left-1/2 transform -translate-x-1/2 text-dark-400 text-sm font-medium">Start Recording</span>
       </button>
       
       <button id="stopBtn" class="group relative" disabled>
@@ -111,34 +110,6 @@
   
   <!-- Analysis Panel -->
   <div class="space-y-6">
-    <!-- Recording Settings -->
-    <div class="card p-6 animate-fade-in">
-      <h3 class="text-xl font-bold text-white mb-4">Recording Settings</h3>
-      <div class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-dark-300 mb-2">Sample Rate</label>
-          <div class="relative">
-            <input id="sampleRate" class="input w-full" type="number" value="48000" />
-            <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-              <span class="text-dark-400 text-sm">Hz</span>
-            </div>
-          </div>
-          <p class="text-xs text-dark-500 mt-1">Higher rates provide better quality</p>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-dark-300 mb-2">Audio Quality</label>
-          <div class="flex items-center space-x-2 text-sm">
-            <span class="text-dark-500">Low</span>
-            <div class="flex-1 bg-dark-700 rounded-full h-2">
-              <div class="bg-gradient-to-r from-primary-500 to-primary-600 h-2 rounded-full" style="width: 80%"></div>
-            </div>
-            <span class="text-primary-400">High</span>
-          </div>
-        </div>
-      </div>
-    </div>
-    
     <!-- Submit Section -->
     <div class="card p-6 animate-fade-in">
       <h3 class="text-xl font-bold text-white mb-4">Analysis</h3>
