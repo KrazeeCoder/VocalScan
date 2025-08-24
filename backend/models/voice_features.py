@@ -72,7 +72,32 @@ def extract_ucipd_from_wav(
             "Install with: pip install praat-parselmouth"
         ) from e
 
-    snd = parselmouth.Sound(wav_path)
+    # --- Robust audio preprocessing (trim silence, pre-emphasis, normalization) ---
+    # Improves stability of jitter/shimmer/HNR by focusing on voiced content.
+    snd = None
+    try:
+        import librosa  # type: ignore
+        import numpy as _np
+        # Load mono waveform at a consistent rate
+        y, sr = librosa.load(wav_path, sr=16000, mono=True)
+        # Trim leading/trailing silence
+        y, _ = librosa.effects.trim(y, top_db=25)
+        # If too short after trim, fall back to raw loading
+        if y.shape[0] < int(0.25 * sr):
+            y, sr = librosa.load(wav_path, sr=16000, mono=True)
+        # Pre-emphasis to boost higher freqs, approximate high-pass
+        try:
+            y = librosa.effects.preemphasis(y, coef=0.97)
+        except Exception:
+            y = _np.concatenate([[y[0]], y[1:] - 0.97 * y[:-1]]) if y.size > 1 else y
+        # Normalize peak to ~ -1 dBFS
+        peak = float(_np.max(_np.abs(y)) + 1e-9)
+        y = 0.89 * (y / peak)
+        # Construct Praat Sound from numpy array
+        snd = parselmouth.Sound(y, sampling_frequency=sr)
+    except Exception:
+        # Fallback to direct file-based loading if preprocessing not available
+        snd = parselmouth.Sound(wav_path)
     # Pitch extraction (Hertz)
     try:
         pitch = call(snd, "To Pitch", time_step, f0_min_hz, f0_max_hz)

@@ -799,10 +799,32 @@ def _extract_and_vectorize_wav(tmp_wav_path: str) -> Tuple[Optional[dict], Optio
 
 
 def _image_bytes_to_spiral_tensor(img_bytes: bytes, size: Tuple[int, int] = (224, 224)) -> Optional[np.ndarray]:
+    """Load spiral image, convert to L, resize, and overlay training-like grid/border.
+
+    This matches training preprocessing by adding light graph boundaries so the
+    CNN sees a consistent frame. The overlay is low-contrast to avoid drowning content.
+    """
     try:
         img = Image.open(io.BytesIO(img_bytes)).convert("L")
         if img.size != size:
             img = img.resize(size)
+        # Draw light border and grid lines
+        try:
+            from PIL import ImageDraw
+            draw = ImageDraw.Draw(img)
+            w, h = img.size
+            # Outer border
+            border_color = 200  # light gray
+            draw.rectangle([(0, 0), (w - 1, h - 1)], outline=border_color, width=1)
+            # Grid every 28 px (~8 cells across 224)
+            step = max(24, min(32, w // 7))
+            grid_color = 220
+            for x in range(step, w, step):
+                draw.line([(x, 0), (x, h)], fill=grid_color, width=1)
+            for y in range(step, h, step):
+                draw.line([(0, y), (w, y)], fill=grid_color, width=1)
+        except Exception:
+            pass
         arr = np.asarray(img, dtype=np.float32) / 255.0
         arr = arr.reshape(1, 1, size[1], size[0])
         return arr
@@ -1090,6 +1112,22 @@ def _image_bytes_to_spiral_tensor(img_bytes: bytes, size: Tuple[int, int] = (224
         if img.size != size:
 
             img = img.resize(size)
+
+        # Overlay light border and grid similar to training PNGs
+        try:
+            from PIL import ImageDraw
+            draw = ImageDraw.Draw(img)
+            w, h = img.size
+            border_color = 200
+            draw.rectangle([(0, 0), (w - 1, h - 1)], outline=border_color, width=1)
+            step = max(24, min(32, w // 7))
+            grid_color = 220
+            for x in range(step, w, step):
+                draw.line([(x, 0), (x, h)], fill=grid_color, width=1)
+            for y in range(step, h, step):
+                draw.line([(0, y), (w, y)], fill=grid_color, width=1)
+        except Exception:
+            pass
 
         arr = np.asarray(img, dtype=np.float32) / 255.0
 
