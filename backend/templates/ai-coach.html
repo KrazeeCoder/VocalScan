@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% block content %}
+<!-- AI Coach Header -->
+<div class="mb-8 animate-fade-in">
+  <div class="text-center">
+    <h1 class="text-3xl font-bold text-white mb-2">AI Exercise Coach</h1>
+    <p class="text-dark-300">Get personalized exercise recommendations based on how you're feeling today</p>
+  </div>
+</div>
+
+<!-- Main AI Coach Card -->
+<div class="max-w-2xl mx-auto">
+  <div class="card p-8 animate-fade-in">
+    <!-- Input Section -->
+    <div class="mb-8">
+      <div class="flex items-center mb-4">
+        <div class="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center mr-3">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+          </svg>
+        </div>
+        <div>
+          <label for="condition-input" class="block text-lg font-semibold text-white">
+            How are you feeling today?
+          </label>
+          <p class="text-sm text-dark-400">Describe your symptoms or condition for personalized recommendations</p>
+        </div>
+      </div>
+      
+      <div class="relative">
+        <textarea 
+          id="condition-input" 
+          class="bg-gradient-to-br from-dark-700/80 to-dark-800/80 border border-dark-600/50 text-white placeholder-dark-400 rounded-2xl px-6 py-4 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-300 w-full h-28 resize-none focus:outline-none shadow-lg backdrop-blur-sm"
+          placeholder="Tell us about your symptoms, energy level, or specific concerns (e.g., 'I feel stiff today', 'My hands are shaky', 'I'm feeling tired and need gentle exercises')"
+        ></textarea>
+        <div class="absolute bottom-3 right-3 text-xs text-dark-500">
+          Press Enter to submit
+        </div>
+      </div>
+      
+      <button 
+        id="get-plan-btn" 
+        class="w-full mt-6 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold px-8 py-4 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+        disabled
+      >
+        <svg class="w-5 h-5 mr-3 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+        </svg>
+        Generate Personalized Plan
+      </button>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loading-state" class="hidden mb-6">
+      <div class="bg-gradient-to-br from-dark-700/80 to-dark-800/80 border border-dark-600/50 rounded-2xl p-8 text-center shadow-xl backdrop-blur-sm">
+        <div class="flex flex-col items-center space-y-4">
+          <div class="relative">
+            <div class="w-12 h-12 border-4 border-primary-500/20 border-t-primary-500 rounded-full animate-spin"></div>
+            <div class="absolute inset-0 w-12 h-12 border-4 border-transparent border-t-primary-400 rounded-full animate-spin" style="animation-delay: -0.5s;"></div>
+          </div>
+          <div>
+            <h4 class="text-lg font-semibold text-white mb-2">Creating Your Plan</h4>
+            <p class="text-dark-300">Analyzing your symptoms and generating personalized exercise recommendations...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Suggested Plan Section -->
+    <div id="suggested-plan" class="hidden mb-6">
+      <div class="flex items-center mb-4">
+        <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center mr-3">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-white">Your Personalized Exercise Plan</h3>
+      </div>
+      
+      <div id="plan-content" class="bg-gradient-to-br from-dark-700/80 to-dark-800/80 border border-dark-600/50 rounded-2xl p-6 text-dark-200 shadow-xl backdrop-blur-sm">
+        <!-- Plan content will be inserted here -->
+      </div>
+      
+      <!-- Save Plan Button -->
+      <div class="mt-4 text-center">
+        <button 
+          id="save-plan-btn" 
+          class="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-medium px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 active:translate-y-0"
+        >
+          <svg class="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+          </svg>
+          Save to Profile
+        </button>
+      </div>
+      
+      <!-- Feedback Section -->
+      <div class="mt-8 p-6 bg-dark-800/30 border border-dark-600/30 rounded-2xl">
+        <div class="text-center mb-4">
+          <h4 class="text-lg font-semibold text-white mb-2">Rate This Plan</h4>
+          <p class="text-sm text-dark-400">Your feedback helps us improve future recommendations</p>
+        </div>
+        <div class="flex gap-4">
+          <button id="do-it-btn" class="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-medium px-6 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 active:translate-y-0">
+            <svg class="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Perfect!
+          </button>
+          <button id="too-easy-btn" class="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium px-6 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 active:translate-y-0">
+            <svg class="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+            Too Easy
+          </button>
+          <button id="too-hard-btn" class="flex-1 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white font-medium px-6 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 active:translate-y-0">
+            <svg class="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+            </svg>
+            Too Hard
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div id="error-state" class="hidden mb-6">
+      <div class="bg-gradient-to-br from-red-500/10 to-red-600/10 border border-red-500/30 rounded-2xl p-6 shadow-xl backdrop-blur-sm">
+        <div class="flex items-start">
+          <div class="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+            <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div>
+            <h4 class="text-lg font-semibold text-red-400 mb-2">Unable to Generate Plan</h4>
+            <p class="text-red-300" id="error-message">An error occurred while generating your plan.</p>
+            <button onclick="location.reload()" class="mt-3 text-sm text-red-400 hover:text-red-300 underline">Try again</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success Feedback -->
+    <div id="success-feedback" class="hidden">
+      <div class="bg-gradient-to-br from-green-500/10 to-green-600/10 border border-green-500/30 rounded-2xl p-6 shadow-xl backdrop-blur-sm">
+        <div class="flex items-start">
+          <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+            <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div>
+            <h4 class="text-lg font-semibold text-green-400 mb-2">Feedback Received!</h4>
+            <p class="text-green-300">Thank you for your feedback! We'll use this to improve future recommendations.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/ai-coach.js"></script>
+{% endblock %}
