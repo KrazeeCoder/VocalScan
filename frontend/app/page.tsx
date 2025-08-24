@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Mic, MicOff, Play, Pause, RotateCcw, Upload } from 'lucide-react'
+import { Mic, MicOff, Play, Pause, RotateCcw, Upload, LogOut } from 'lucide-react'
 import WaveformVisualizer from './components/WaveformVisualizer'
 import ResultsDisplay from './components/ResultsDisplay'
 import SampleTypeSelector from './components/SampleTypeSelector'
@@ -210,17 +210,31 @@ export default function VocalScanApp() {
     }
   }
 
+  const handleSignOut = () => {
+    // Redirect to the sign-in page
+    window.location.href = 'http://localhost:8080'
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            VocalScan
-          </h1>
-          <p className="text-lg text-gray-600">
-            AI-powered voice pattern analysis for health insights
-          </p>
+        <div className="flex justify-between items-center mb-8">
+          <div className="text-center flex-1">
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              VocalScan
+            </h1>
+            <p className="text-lg text-gray-600">
+              AI-powered voice pattern analysis for health insights
+            </p>
+          </div>
+          <button
+            onClick={handleSignOut}
+            className="flex items-center space-x-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-all duration-300"
+          >
+            <LogOut size={20} />
+            <span>Sign Out</span>
+          </button>
         </div>
 
         {/* Main Interface */}
