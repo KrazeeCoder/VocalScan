@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="mt-6 card p-6">
+  <h2 class="text-xl font-semibold mb-4">Export</h2>
+  <div class="grid md:grid-cols-2 gap-6">
+    <div>
+      <h3 class="font-semibold mb-2">CSV</h3>
+      <div class="space-y-3">
+        <input id="csvFrom" class="input" placeholder="From ISO (optional)"/>
+        <input id="csvTo" class="input" placeholder="To ISO (optional)"/>
+        <label class="inline-flex items-center gap-2"><input id="csvSave" type="checkbox"/> Save to cloud and return link</label>
+        <button id="csvBtn" class="btn">Generate CSV</button>
+        <div id="csvMsg" class="text-sm text-gray-600"></div>
+      </div>
+    </div>
+    <div>
+      <h3 class="font-semibold mb-2">PDF</h3>
+      <div class="space-y-3">
+        <input id="pdfFrom" class="input" placeholder="From ISO (optional)"/>
+        <input id="pdfTo" class="input" placeholder="To ISO (optional)"/>
+        <label class="inline-flex items-center gap-2"><input id="pdfAudio" type="checkbox"/> Include audio references</label>
+        <label class="inline-flex items-center gap-2"><input id="pdfSave" type="checkbox"/> Save to cloud and return link</label>
+        <button id="pdfBtn" class="btn">Generate PDF</button>
+        <div id="pdfMsg" class="text-sm text-gray-600"></div>
+      </div>
+    </div>
+  </div>
+  <hr class="my-6"/>
+  <div>
+    <h3 class="font-semibold mb-2">Share existing export</h3>
+    <input id="sharePath" class="input" placeholder="Storage path (e.g., exports/uid/report_xxx.pdf)"/>
+    <input id="shareExp" class="input mt-2" placeholder="Expires minutes (default 60)"/>
+    <button id="shareBtn" class="btn mt-3">Create Share Link</button>
+    <div id="shareMsg" class="text-sm text-gray-600 mt-2"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/export.js"></script>
+{% endblock %}
+
+
