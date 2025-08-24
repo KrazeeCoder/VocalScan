@@ -331,6 +331,150 @@ def infer():
     )
 
 
+@infer_bp.post("/therapy/infer")
+def therapy_infer():
+    """Therapy inference: mirror voice recording flow and write under voiceRecordings/{recordId}.
+
+    Accepts multipart/form-data with keys:
+      - file: audio/webm
+      - sampleRate: optional
+      - durationSec: optional
+      - recordId: required (e.g., rec_YYYYMMDD_HHMMSS or similar)
+    """
+    try:
+        uid, _claims = verify_firebase_id_token(request)
+    except AuthError as exc:
+        return jsonify({"error": str(exc)}), 401
+
+    if "file" not in request.files:
+        return jsonify({"error": "missing file"}), 400
+
+    # Read inputs
+    file_storage = request.files["file"]
+    audio_bytes = file_storage.read() or b""
+
+    sample_rate_str = request.form.get("sampleRate", "48000").strip()
+    duration_sec_str = request.form.get("durationSec", "10").strip()
+    record_id_client = request.form.get("recordId", "").strip()
+
+    try:
+        sample_rate = int(float(sample_rate_str))
+    except ValueError:
+        sample_rate = 48000
+
+    try:
+        duration_sec = float(duration_sec_str)
+    except ValueError:
+        duration_sec = 10.0
+
+    # Require explicit record id to align with client upload path
+    record_id = record_id_client or time.strftime("rec_%Y%m%d_%H%M%S")
+    storage_path = f"audio/{uid}/{record_id}.webm"
+
+    # Convert to WAV and extract features
+    features = {}
+    predicted = None
+    try:
+        import tempfile, subprocess, os
+        from backend.models.voice_features import extract_ucipd_from_wav
+
+        with tempfile.NamedTemporaryFile(suffix=".webm", delete=False) as f_in, \
+             tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f_wav:
+            tmp_in, tmp_wav = f_in.name, f_wav.name
+            f_in.write(audio_bytes)
+            f_in.flush()
+        try:
+            subprocess.run(["ffmpeg", "-y", "-i", tmp_in, "-ar", "16000", "-ac", "1", tmp_wav], check=True)
+            features = extract_ucipd_from_wav(tmp_wav)
+            # add lightweight RMS
+            try:
+                import numpy as np, librosa
+                y, sr = librosa.load(tmp_wav, sr=16000, mono=True)
+                rms = librosa.feature.rms(y=y)[0]
+                features["rms_db_mean"] = float(20*np.log10(np.mean(rms)+1e-6))
+                features["rms_db_max"] = float(20*np.log10(np.max(rms)+1e-6))
+            except Exception:
+                pass
+        finally:
+            try:
+                os.remove(tmp_in)
+            except Exception:
+                pass
+            try:
+                os.remove(tmp_wav)
+            except Exception:
+                pass
+
+        # Optional prediction via sklearn bundle
+        try:
+            import joblib, numpy as np
+            bundle_path = os.path.join("runs", "uci_rf.joblib")
+            if os.path.exists(bundle_path):
+                bundle = joblib.load(bundle_path)
+                cols = bundle.get("cols", [])
+                if cols:
+                    x = np.array([[features.get(c, 0.0) for c in cols]], dtype="float32")
+                    xs = bundle["scaler"].transform(x)
+                    model = bundle["model"]
+                    if hasattr(model, "predict_proba"):
+                        predicted = float(model.predict_proba(xs)[0, 1])
+                    else:
+                        predicted = float(model.predict(xs)[0])
+        except Exception:
+            predicted = None
+    except Exception as exc:
+        return jsonify({"error": f"processing_failed: {exc}"}), 500
+
+    # Persist to Firestore under users/{uid}
+    db = firestore.client()
+    user_ref = db.collection("users").document(uid)
+    user_ref.set(
+        {
+            "createdAt": firestore.SERVER_TIMESTAMP,
+            "lastRecordingAt": firestore.SERVER_TIMESTAMP,
+            "voiceRecordingPaths": firestore.ArrayUnion([storage_path]),
+            "updatedAt": firestore.SERVER_TIMESTAMP,
+        },
+        merge=True,
+    )
+
+    rec_ref = user_ref.collection("voiceRecordings").document(record_id)
+    # derive risk from predicted if available
+    risk_level = None
+    if isinstance(predicted, float):
+        risk_level = "LOW" if predicted < 0.33 else ("MEDIUM" if predicted < 0.66 else "HIGH")
+
+    rec_ref.set(
+        {
+            "createdAt": firestore.SERVER_TIMESTAMP,
+            "storagePath": storage_path,
+            "durationSec": duration_sec,
+            "sampleRate": sample_rate,
+            "modelVersion": "therapy-rf-v1",
+            "scores": ({"probability": predicted} if predicted is not None else {}),
+            "confidence": None,
+            "riskLevel": risk_level,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "status": "analyzed",
+            "features": features,
+        },
+        merge=True,
+    )
+
+    return (
+        jsonify(
+            {
+                "recordId": record_id,
+                "modelVersion": "therapy-rf-v1",
+                "features": features,
+                "predicted_score": predicted,
+                "riskLevel": risk_level,
+                "storagePath": storage_path,
+            }
+        ),
+        200,
+    )
+
 @infer_bp.post("/spiral/infer")
 def spiral_infer():
     """Accepts a spiral drawing image, computes placeholder scores, and writes Firestore record.

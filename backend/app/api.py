@@ -38,6 +38,7 @@ def therapy_process():
     payload = request.get_json(silent=True) or {}
     session_id = (payload.get("sessionId") or "").strip()
     storage_path = (payload.get("storagePath") or "").strip()
+    bucket_override = (payload.get("bucketName") or "").strip()
     if not session_id:
         return jsonify({"error": "missing sessionId"}), 400
 
@@ -59,7 +60,11 @@ def therapy_process():
     if storage_path:
         try:
             # Determine bucket name explicitly to avoid default-bucket errors
-            bucket_name = os.getenv("FIREBASE_STORAGE_BUCKET")
+            # Client can pass an explicit Firebase storageBucket, e.g. "vocalscan.firebasestorage.app"
+            bucket_name = (bucket_override or os.getenv("FIREBASE_STORAGE_BUCKET") or "").strip()
+            if bucket_name.endswith(".firebasestorage.app"):
+                # Map Firebase console host to actual GCS bucket host
+                bucket_name = bucket_name.replace(".firebasestorage.app", ".appspot.com")
             if not bucket_name:
                 # Attempt fallbacks: infer from project id env or known project id
                 project_id = os.getenv("FIREBASE_PROJECT_ID") or os.getenv("GOOGLE_CLOUD_PROJECT") or "vocalscan"

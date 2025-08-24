@@ -99,29 +99,22 @@
       processed: false
     };
 
-    let storagePath = null;
-    if (consentCk.checked) {
-      const blob = new Blob(chunks, { type: 'audio/webm' });
-      storagePath = `users/${user.uid}/voice/${sessionId}.webm`;
-      const ref = (storageRootRef || storage.ref()).child(storagePath);
-      await ref.put(blob, { contentType: 'audio/webm' });
-      doc.storagePath = storagePath;
-    }
-
-    await db.collection('users').doc(user.uid).collection('voiceSessions').doc(sessionId).set(doc);
-
-    try {
-      const idToken = await user.getIdToken();
-      const res = await fetch('/api/therapy/process', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${idToken}` },
-        body: JSON.stringify({ sessionId, storagePath, exerciseType })
-      });
-      const json = await res.json();
-      showResult(json);
-    } catch (e) {
-      console.error('Processing error', e);
-    }
+    // Mirror Voice Recording flow: send file directly to backend to keep paths consistent
+    const blob = new Blob(chunks, { type: 'audio/webm' });
+    const token = await user.getIdToken();
+    const fd = new FormData();
+    const recordId = sessionId.replace('s_', 'rec_');
+    fd.append('file', blob, `${recordId}.webm`);
+    fd.append('sampleRate', String((audioCtx && audioCtx.sampleRate) || 48000));
+    fd.append('durationSec', String(durationSec));
+    fd.append('recordId', recordId);
+    const resp = await fetch('/therapy/infer', { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: fd });
+    const json = await resp.json();
+    // Also persist minimal session doc for therapy page history
+    doc.processed = true;
+    doc.storagePath = json.storagePath || '';
+    await db.collection('users').doc(user.uid).collection('voiceSessions').doc(sessionId).set(doc, { merge: true });
+    showResult(json);
   }
 
   function reset(){
@@ -135,13 +128,33 @@
       return;
     }
     const f = data.features || {};
+    const s = typeof data.predicted_score === 'number' ? data.predicted_score : null;
+    let level = 'No score';
+    let levelClass = 'warning';
+    let advisory = 'Record a few sessions to see a stable trend.';
+    if (s !== null) {
+      if (s < 0.33) { level = 'Good'; levelClass = 'success'; advisory = 'Low PD-likeness. Keep practicing and track over time.'; }
+      else if (s < 0.66) { level = 'Medium'; levelClass = 'warning'; advisory = 'Mixed signal. Repeat under similar conditions and watch the weekly trend.'; }
+      else { level = 'High'; levelClass = 'error'; advisory = 'Higher PD-likeness. If this persists across multiple sessions, share with a clinician.'; }
+    }
+
+    const bannerClass = levelClass === 'success' ? 'border-green-500/30 bg-green-500/10' : levelClass === 'warning' ? 'border-yellow-500/30 bg-yellow-500/10' : 'border-red-500/30 bg-red-500/10';
+
     res.innerHTML = `
       <div class="space-y-3">
+        <div class="p-4 rounded-xl border ${bannerClass}">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-dark-300 text-sm">Overall</span>
+            <span class="status-${levelClass}">${level}</span>
+          </div>
+          <div class="text-white font-bold text-xl">${s !== null ? `Score: ${s.toFixed(2)}` : 'Score unavailable'}</div>
+          <p class="text-dark-300 text-sm mt-1">${advisory}</p>
+        </div>
+
         <div class="p-3 bg-dark-800/50 rounded-xl"><span class="text-dark-300">RMS mean</span> <span class="float-right text-white">${(f.rms_db_mean??0).toFixed(2)} dB</span></div>
         <div class="p-3 bg-dark-800/50 rounded-xl"><span class="text-dark-300">F0 median</span> <span class="float-right text-white">${(f['MDVP:Fo(Hz)']??0).toFixed(1)} Hz</span></div>
         <div class="p-3 bg-dark-800/50 rounded-xl"><span class="text-dark-300">Jitter (%)</span> <span class="float-right text-white">${(f['MDVP:Jitter(%)']??0).toFixed(3)}</span></div>
         <div class="p-3 bg-dark-800/50 rounded-xl"><span class="text-dark-300">Shimmer (dB)</span> <span class="float-right text-white">${(f['MDVP:Shimmer(dB)']??0).toFixed(3)}</span></div>
-        ${data.predicted_score !== undefined ? `<div class="p-3 bg-dark-800/50 rounded-xl"><span class="text-dark-300">Score</span> <span class="float-right text-white">${Number(data.predicted_score).toFixed(2)}</span></div>`: ''}
       </div>
     `;
   }
