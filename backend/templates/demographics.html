@@ -1,0 +1,300 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="mx-auto max-w-4xl mt-10 card p-6">
+  <h1 class="text-3xl font-semibold mb-6">Complete Your Profile</h1>
+  <p class="text-sm text-gray-600 mb-8">Help us provide better analysis by sharing some demographic information. This information is securely stored and used only for improving your health assessments.</p>
+  
+  <form id="demographicsForm" class="space-y-6">
+    
+    <!-- Basic Information -->
+    <div class="border-b pb-6">
+      <h2 class="text-xl font-medium mb-4">Basic Information</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label for="age" class="block text-sm font-medium text-gray-700 mb-1">Age *</label>
+          <input type="number" id="age" name="age" min="1" max="120" required 
+                 class="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500" />
+        </div>
+        <div>
+          <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">Gender *</label>
+          <select id="gender" name="gender" required 
+                  class="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500">
+            <option value="">Select gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="non-binary">Non-binary</option>
+            <option value="prefer-not-to-say">Prefer not to say</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Medical History -->
+    <div class="border-b pb-6">
+      <h2 class="text-xl font-medium mb-4">Medical History</h2>
+      <div class="space-y-4">
+        <div>
+          <label for="medicalHistory" class="block text-sm font-medium text-gray-700 mb-1">
+            Do you have any diagnosed medical conditions? *
+          </label>
+          <select id="medicalHistory" name="medicalHistory" required 
+                  class="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500">
+            <option value="">Select option</option>
+            <option value="none">No diagnosed conditions</option>
+            <option value="respiratory">Respiratory conditions (asthma, COPD, etc.)</option>
+            <option value="neurological">Neurological conditions (Parkinson's, MS, etc.)</option>
+            <option value="both">Both respiratory and neurological</option>
+            <option value="other">Other medical conditions</option>
+          </select>
+        </div>
+        
+        <div>
+          <label for="symptoms" class="block text-sm font-medium text-gray-700 mb-1">
+            Current symptoms (check all that apply)
+          </label>
+          <div class="grid grid-cols-2 gap-2 mt-2">
+            <label class="flex items-center">
+              <input type="checkbox" name="symptoms" value="voice-changes" class="mr-2">
+              Voice changes
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" name="symptoms" value="breathing-difficulty" class="mr-2">
+              Breathing difficulty
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" name="symptoms" value="tremor" class="mr-2">
+              Tremor
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" name="symptoms" value="coordination-issues" class="mr-2">
+              Coordination issues
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" name="symptoms" value="fatigue" class="mr-2">
+              Fatigue
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" name="symptoms" value="none" class="mr-2">
+              None
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label for="medications" class="block text-sm font-medium text-gray-700 mb-1">
+            Current medications (optional)
+          </label>
+          <textarea id="medications" name="medications" rows="3" placeholder="List any medications you're currently taking..."
+                    class="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Family History -->
+    <div class="border-b pb-6">
+      <h2 class="text-xl font-medium mb-4">Family History</h2>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Family history of conditions (check all that apply)
+        </label>
+        <div class="grid grid-cols-2 gap-2">
+          <label class="flex items-center">
+            <input type="checkbox" name="familyHistory" value="parkinsons" class="mr-2">
+            Parkinson's disease
+          </label>
+          <label class="flex items-center">
+            <input type="checkbox" name="familyHistory" value="alzheimers" class="mr-2">
+            Alzheimer's disease
+          </label>
+          <label class="flex items-center">
+            <input type="checkbox" name="familyHistory" value="respiratory" class="mr-2">
+            Respiratory conditions
+          </label>
+          <label class="flex items-center">
+            <input type="checkbox" name="familyHistory" value="neurological" class="mr-2">
+            Other neurological conditions
+          </label>
+          <label class="flex items-center">
+            <input type="checkbox" name="familyHistory" value="none" class="mr-2">
+            None known
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lifestyle -->
+    <div class="border-b pb-6">
+      <h2 class="text-xl font-medium mb-4">Lifestyle Information</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label for="smoking" class="block text-sm font-medium text-gray-700 mb-1">Smoking status</label>
+          <select id="smoking" name="smoking" 
+                  class="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500">
+            <option value="">Select option</option>
+            <option value="never">Never smoked</option>
+            <option value="former">Former smoker</option>
+            <option value="current">Current smoker</option>
+          </select>
+        </div>
+        <div>
+          <label for="exercise" class="block text-sm font-medium text-gray-700 mb-1">Exercise frequency</label>
+          <select id="exercise" name="exercise" 
+                  class="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500">
+            <option value="">Select option</option>
+            <option value="none">No regular exercise</option>
+            <option value="light">Light (1-2 times/week)</option>
+            <option value="moderate">Moderate (3-4 times/week)</option>
+            <option value="heavy">Heavy (5+ times/week)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact Information -->
+    <div class="border-b pb-6">
+      <h2 class="text-xl font-medium mb-4">Contact Information (Optional)</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone number</label>
+          <input type="tel" id="phone" name="phone" 
+                 class="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500" />
+        </div>
+        <div>
+          <label for="preferredContact" class="block text-sm font-medium text-gray-700 mb-1">Preferred contact method</label>
+          <select id="preferredContact" name="preferredContact" 
+                  class="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500">
+            <option value="">Select option</option>
+            <option value="email">Email</option>
+            <option value="phone">Phone</option>
+            <option value="none">No contact preferred</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Emergency Contact -->
+    <div class="pb-6">
+      <h2 class="text-xl font-medium mb-4">Emergency Contact (Optional)</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label for="emergencyName" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+          <input type="text" id="emergencyName" name="emergencyName" 
+                 class="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500" />
+        </div>
+        <div>
+          <label for="emergencyPhone" class="block text-sm font-medium text-gray-700 mb-1">Phone number</label>
+          <input type="tel" id="emergencyPhone" name="emergencyPhone" 
+                 class="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500" />
+        </div>
+        <div>
+          <label for="emergencyRelation" class="block text-sm font-medium text-gray-700 mb-1">Relationship</label>
+          <input type="text" id="emergencyRelation" name="emergencyRelation" placeholder="e.g., Spouse, Parent, Friend"
+                 class="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Submit Button -->
+    <div class="pt-6">
+      <button type="submit" 
+              class="inline-flex items-center px-6 py-3 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 font-medium">
+        Complete Profile & Continue
+      </button>
+      <p class="text-xs text-gray-500 mt-2">
+        By submitting this form, you agree to share this information for improving your health assessments.
+      </p>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const auth = window.vsFirebase.auth;
+  
+  // Check if user is authenticated
+  auth.onAuthStateChanged((user) => {
+    if (!user) {
+      location.href = '/login';
+      return;
+    }
+  });
+
+  // Handle form submission
+  document.getElementById('demographicsForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const user = auth.currentUser;
+    if (!user) {
+      alert('Please log in first');
+      location.href = '/login';
+      return;
+    }
+
+    // Collect form data
+    const formData = new FormData(e.target);
+    const data = {};
+    
+    // Get simple form fields
+    data.age = parseInt(formData.get('age'));
+    data.gender = formData.get('gender');
+    data.medicalHistory = formData.get('medicalHistory');
+    
+    // Get checkbox arrays
+    data.symptoms = formData.getAll('symptoms');
+    data.familyHistory = formData.getAll('familyHistory');
+    
+    // Get medications as array (split by lines)
+    const medicationsText = formData.get('medications');
+    data.medications = medicationsText ? medicationsText.split('\n').filter(m => m.trim()) : [];
+    
+    // Get lifestyle data
+    data.lifestyle = {
+      smoking: formData.get('smoking'),
+      exercise: formData.get('exercise')
+    };
+    
+    // Get contact info
+    data.contactInfo = {
+      phone: formData.get('phone'),
+      preferredContact: formData.get('preferredContact')
+    };
+    
+    // Get emergency contact
+    data.emergencyContact = {
+      name: formData.get('emergencyName'),
+      phone: formData.get('emergencyPhone'),
+      relationship: formData.get('emergencyRelation')
+    };
+
+    try {
+      // Get Firebase ID token
+      const idToken = await user.getIdToken();
+      
+      // Submit to backend
+      const response = await fetch('/demographics', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`
+        },
+        body: JSON.stringify(data)
+      });
+      
+      const result = await response.json();
+      
+      if (response.ok) {
+        alert('Profile completed successfully!');
+        location.href = '/record'; // Redirect to main app
+      } else {
+        alert('Error: ' + (result.error || 'Failed to save demographics'));
+      }
+    } catch (error) {
+      console.error('Error submitting demographics:', error);
+      alert('Failed to submit demographics. Please try again.');
+    }
+  });
+});
+</script>
+{% endblock %}

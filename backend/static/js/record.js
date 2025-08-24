@@ -9,14 +9,6 @@
     return `${String(m).padStart(2,'0')}:${String(r).padStart(2,'0')}`;
   }
 
-  async function ensureAuthed(){
-    return new Promise(resolve => {
-      auth.onAuthStateChanged(user => {
-        if (!user) { location.href = '/login'; } else { resolve(user); }
-      });
-    });
-  }
-
   async function start(){
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     const mimeType = MediaRecorder.isTypeSupported('audio/webm; codecs=opus') ? 'audio/webm; codecs=opus' : 'audio/webm';
@@ -131,7 +123,7 @@
   }
 
   window.addEventListener('DOMContentLoaded', async () => {
-    await ensureAuthed();
+    await window.vsAuth.ensureAuthenticatedWithDemographics();
     document.getElementById('startBtn').onclick = start;
     document.getElementById('stopBtn').onclick = async () => { await stop(); document.getElementById('submitBtn').disabled = chunks.length === 0; };
     document.getElementById('submitBtn').onclick = async () => {

@@ -29,3 +29,13 @@ def spiral():
     return render_template("spiral.html")
 
 
+@pages_bp.get("/demographics")
+def demographics():
+    return render_template("demographics.html")
+
+
+@pages_bp.get("/treatments")
+def treatments():
+    return render_template("treatments.html")
+
+

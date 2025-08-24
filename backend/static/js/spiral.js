@@ -4,10 +4,6 @@
   let canvas, ctx, isDrawing = false, lastX = 0, lastY = 0;
   let hasStroke = false;
 
-  function ensureAuthed(){
-    return new Promise(resolve => auth.onAuthStateChanged(u => { if(!u) location.href='/login'; else resolve(u); }));
-  }
-
   function setupCanvas(){
     canvas = document.getElementById('spiralCanvas');
     ctx = canvas.getContext('2d');
@@ -21,9 +17,19 @@
 
     const getPos = (e) => {
       const rect = canvas.getBoundingClientRect();
-      const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
-      const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
-      return { x: Math.max(0, Math.min(canvas.width, x)), y: Math.max(0, Math.min(canvas.height, y)) };
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      
+      const x = (clientX - rect.left) * scaleX;
+      const y = (clientY - rect.top) * scaleY;
+      
+      return { 
+        x: Math.max(0, Math.min(canvas.width, x)), 
+        y: Math.max(0, Math.min(canvas.height, y)) 
+      };
     };
 
     const start = (e) => { isDrawing = true; hasStroke = true; const p = getPos(e); lastX = p.x; lastY = p.y; };
@@ -126,7 +132,7 @@
   }
 
   window.addEventListener('DOMContentLoaded', async () => {
-    await ensureAuthed();
+    await window.vsAuth.ensureAuthenticatedWithDemographics();
     setupCanvas();
     document.getElementById('clearBtn').onclick = clearCanvas;
     document.getElementById('submitSpiralBtn').onclick = async () => {
