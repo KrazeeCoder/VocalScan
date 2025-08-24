@@ -95,7 +95,17 @@
   async function uploadAndInfer(){
     const user = auth.currentUser; if (!user) { location.href='/login'; return; }
     const durationSec = Math.max(0.1, (Date.now()-startTime)/1000);
-    const sampleRate = Number(document.getElementById('sampleRate').value) || 48000;
+    // Determine sample rate safely (fallback to AudioContext or default)
+    let sampleRate = 48000;
+    try {
+      const srEl = document.getElementById('sampleRate');
+      if (srEl && srEl.value) {
+        const parsed = Number(srEl.value);
+        if (!Number.isNaN(parsed) && parsed > 0) sampleRate = parsed;
+      } else if (audioCtx && typeof audioCtx.sampleRate === 'number') {
+        sampleRate = audioCtx.sampleRate;
+      }
+    } catch (_) { /* ignore and use default */ }
     const recordId = new Date().toISOString().replace(/[:.]/g,'-').replace('T','_').slice(0,19);
     const blob = new Blob(chunks, { type: 'audio/webm' });
 
